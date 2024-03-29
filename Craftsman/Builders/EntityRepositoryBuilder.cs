@@ -66,7 +66,7 @@ public interface {repoInterface} : {genericRepositoryInterface}<{entityName}>
 
 public sealed class {repoName}({dbContextName} dbContext) : {genericRepoName}<{entityName}>(dbContext), {repoInterface}
 {{
-    private readonly {dbContextName} _dbContext;
+    private readonly {dbContextName} _dbContext = dbContext;
 }}  
 ";
         }
