@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 * Fix db context ctor in repos
+* can run a `new domain` with no entities (#135)
 
 ## [0.26.3] - 03/24/2024
 

@@ -74,6 +74,9 @@ public class DbContextModifier
             .Select(x => $"{Environment.NewLine}        modelBuilder.ApplyConfiguration(new {FileNames.GetDatabaseEntityConfigName(x.Name)}());")
             .ToList();
         
+        if (configList.Count == 0)
+            return "";
+        
         var newLinedString = configList.Aggregate((current, next) => @$"{current}{next}");
         return newLinedString;
     }
