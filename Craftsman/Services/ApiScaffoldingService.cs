@@ -70,21 +70,23 @@ public class ApiScaffoldingService
 
                 // add all files based on the given template config
                 ctx.Status($"[bold blue]Scaffolding Files for {projectName} [/]");
-                RunTemplateBuilders(_scaffoldingDirectoryStore.BoundedContextDirectory, _scaffoldingDirectoryStore.SrcDirectory, _scaffoldingDirectoryStore.TestDirectory, template);
+                RunTemplateBuilders(template);
                 _consoleWriter.WriteLogMessage($"File scaffolding for {template.ProjectName} was successful");
             });
     }
 
-    private void RunTemplateBuilders(string boundedContextDirectory, string srcDirectory, string testDirectory, ApiTemplate template)
+    private void RunTemplateBuilders(ApiTemplate template)
     {
         var projectBaseName = template.ProjectName;
+        var srcDirectory = _scaffoldingDirectoryStore.SrcDirectory;
+        var testDirectory = _scaffoldingDirectoryStore.TestDirectory;
 
         // docker config data transform
         template.DockerConfig.ProjectName = template.ProjectName;
         template.DockerConfig.Provider = template.DbContext.Provider;
 
         // get solution dir from bcDir
-        var solutionDirectory = Directory.GetParent(boundedContextDirectory)?.FullName;
+        var solutionDirectory = Directory.GetParent(_scaffoldingDirectoryStore.BoundedContextDirectory)?.FullName;
         _utilities.IsSolutionDirectoryGuard(solutionDirectory);
 
         // base files needed before below is ran

@@ -84,7 +84,8 @@ public class NewDomainCommand : Command<NewDomainCommand.Settings>
         foreach (var bc in domainProject.BoundedContexts)
         {
             bc.DockerConfig.OTelAgentPort = otelAgentPort;
-            new ApiScaffoldingService(_console, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _fileSystem, _mediator, _fileParsingHelper).ScaffoldApi(solutionDirectory, bc);
+            new ApiScaffoldingService(_console, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _fileSystem, _mediator, _fileParsingHelper)
+                .ScaffoldApi(solutionDirectory, bc);
         }
 
         // auth server
