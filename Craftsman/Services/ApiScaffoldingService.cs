@@ -3,7 +3,6 @@ namespace Craftsman.Services;
 using System.IO.Abstractions;
 using Builders;
 using Builders.Auth;
-using Builders.Configurations;
 using Builders.Docker;
 using Builders.Endpoints;
 using Builders.Tests.Fakes;
@@ -194,10 +193,7 @@ public class ApiScaffoldingService
         _mediator.Send(new HangfireAuthorizationFilterBuilder.Command());
         _mediator.Send(new JobWithUserContextBuilder.Command());
         _mediator.Send(new ServiceJobActivatorScopeBuilder.Command());
-        new AuthConfigurationsBuilder(_utilities).CreateConfig(srcDirectory, projectBaseName);
-        new RabbitMqConfigurationsBuilder(_utilities).CreateConfig(srcDirectory, projectBaseName);
-        new ConnectionStringConfigurationsBuilder(_utilities).CreateConfig(srcDirectory, projectBaseName);
-        new RootConfigurationsExtensionBuilder(_utilities).CreateConfig(srcDirectory, projectBaseName);
+        new OptionsConfigurationsBuilder(_utilities).CreateConfig(srcDirectory, projectBaseName);
 
         new CurrentUserServiceBuilder(_utilities).GetCurrentUserService(srcDirectory, projectBaseName);
         new SwaggerBuilder(_utilities, _fileSystem).AddSwagger(srcDirectory, template.SwaggerConfig, template.ProjectName, template.AddJwtAuthentication, template?.Environment?.AuthSettings?.Audience, projectBaseName);

@@ -49,7 +49,7 @@ using Hellang.Middleware.ProblemDetails.Mvc;";
 
 using {middlewareClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using System.Text.Json.Serialization;
 using Serilog;
 using FluentValidation.AspNetCore;{hellangErrorUsings}
@@ -64,6 +64,8 @@ public static class {FileNames.WebAppServiceConfiguration()}
 {{
     public static void ConfigureServices(this WebApplicationBuilder builder)
     {{
+        builder.Services.Configure<{FileNames.OptionsClassName(projectBaseName)}>(builder.Configuration.GetSection({FileNames.OptionsClassName(projectBaseName)}.SectionName));
+
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton(Log.Logger);{hellangRegistration}
 

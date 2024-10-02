@@ -30,7 +30,7 @@ public class MassTransitExtensionsBuilder
 using {utilsClassPath.ClassNamespace};
 using {envServiceClassPath.ClassNamespace};
 using {messagesClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

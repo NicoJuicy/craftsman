@@ -31,7 +31,7 @@ using {dbContextClassPath.ClassNamespace};
 using {utilsClassPath.ClassNamespace};
 using {envServiceClassPath.ClassNamespace};
 using {hangfireResourceClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.EntityFrameworkCore;

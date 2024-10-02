@@ -41,7 +41,7 @@ public class SwaggerBuilder
         return @$"namespace {classNamespace};
 
 using {envServiceClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;

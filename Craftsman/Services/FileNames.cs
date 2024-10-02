@@ -25,10 +25,7 @@ public static class FileNames
     public static string ConnectionStringOptionKey(string projectBaseName) 
         => $"{CraftsmanUtilities.GetCleanProjectName(projectBaseName)}Key";
     public static string TestingServiceScope() => "TestingServiceScope";
-    public static string AuthOptions() => "AuthOptions";
-    public static string RabbitMqOptions() => "RabbitMqOptions";
-    public static string ConnectionStringOptions() => "ConnectionStringOptions";
-    public static string RootConfigurationExtensions() => "RootConfigurationExtensions";
+    public static string OptionsClassName(string projectBaseName) => $"{CraftsmanUtilities.GetCleanProjectName(projectBaseName)}Options";
     public static string FakeBuilderName(string entityName) => $"Fake{entityName}Builder";
     public static string MessageInterfaceName(string messageName)
     {

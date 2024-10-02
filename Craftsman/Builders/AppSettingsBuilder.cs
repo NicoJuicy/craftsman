@@ -3,15 +3,8 @@
 using Helpers;
 using Services;
 
-public class AppSettingsBuilder
+public class AppSettingsBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AppSettingsBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     /// <summary>
     /// this build will create environment based app settings files.
     /// </summary>
@@ -20,7 +13,7 @@ public class AppSettingsBuilder
         var appSettingFilename = FileNames.GetAppSettingsName();
         var classPath = ClassPathHelper.WebApiAppSettingsClassPath(srcDirectory, $"{appSettingFilename}", projectBaseName);
         var fileText = GetAppSettingsText();
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetAppSettingsText()

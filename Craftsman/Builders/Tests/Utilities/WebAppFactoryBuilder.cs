@@ -42,7 +42,7 @@ using WebMotions.Fake.Authentication.JwtBearer;" : "";
 
 using {utilsClassPath.ClassNamespace};
 using {sharedUtilsClassPath.ClassNamespace};{authUsing}
-using Configurations;
+using Resources;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -51,6 +51,7 @@ using System.Reflection;{provider.TestingDbSetupUsings()}
 using Testcontainers.RabbitMq;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using static Resources.{FileNames.OptionsClassName(projectBaseName)};
 
 [CollectionDefinition(nameof(TestBase))]
 public class TestingWebApplicationFactoryCollection : ICollectionFixture<TestingWebApplicationFactory> {{ }}

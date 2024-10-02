@@ -2,7 +2,7 @@
   "profiles": {
     "Craftsman Dev": {
       "commandName": "Project",
-      "commandLineArgs": "add feature",
+      "commandLineArgs": "new example",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Dev"
       }

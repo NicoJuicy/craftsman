@@ -73,7 +73,7 @@ using {baseEntityClassPath.ClassNamespace};
 using {entityConfigClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
 using {exceptionsConfigClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

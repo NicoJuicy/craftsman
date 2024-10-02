@@ -26,7 +26,7 @@ public class OpenTelemetryExtensionsBuilder
         return @$"namespace {classNamespace};
 
 using {envServiceClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;

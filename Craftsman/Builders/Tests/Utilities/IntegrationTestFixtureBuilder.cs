@@ -40,7 +40,7 @@ using {configClassPath.ClassNamespace};
 using {contextClassPath.ClassNamespace};
 using {utilsClassPath.ClassNamespace};
 using {sharedUtilsClassPath.ClassNamespace};
-using Configurations;
+using Resources;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using Hangfire;{heimGuardUsing}
@@ -52,6 +52,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
+using static Resources.{FileNames.OptionsClassName(projectBaseName)};
 
 [CollectionDefinition(nameof(TestFixture))]
 public class TestFixtureCollection : ICollectionFixture<TestFixture> {{}}

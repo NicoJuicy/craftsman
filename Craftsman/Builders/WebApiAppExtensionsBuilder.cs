@@ -26,7 +26,7 @@ public class WebApiAppExtensionsBuilder
         var envServiceClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         return @$"namespace {classNamespace};
 
-using Configurations;
+using Resources;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Resources;
