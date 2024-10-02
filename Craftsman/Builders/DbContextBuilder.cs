@@ -44,6 +44,7 @@ public class DbContextBuilder
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var baseEntityClassPath = ClassPathHelper.EntityClassPath(srcDirectory, $"", "", projectBaseName);
         var entityConfigClassPath = ClassPathHelper.DatabaseConfigClassPath(srcDirectory, $"", projectBaseName);
+        var exceptionsConfigClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
 
         var softDelete = useSoftDelete
             ? $@"
@@ -71,6 +72,7 @@ public class DbContextBuilder
 using {baseEntityClassPath.ClassNamespace};
 using {entityConfigClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
+using {exceptionsConfigClassPath.ClassNamespace};
 using Configurations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
