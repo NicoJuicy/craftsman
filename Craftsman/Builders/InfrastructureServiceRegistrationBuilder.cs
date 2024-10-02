@@ -74,7 +74,7 @@ public static class HangfireConfig
         services.AddHangfireServer(options =>
         {{
             options.WorkerCount = 10;
-            options.ServerName = $""PeakLims-{{env.EnvironmentName}}"";
+            options.ServerName = $""{CraftsmanUtilities.GetCleanProjectName(projectBaseName)}-{{env.EnvironmentName}}"";
 
             if (Consts.HangfireQueues.List().Length > 0)
             {{
