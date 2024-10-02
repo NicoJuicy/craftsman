@@ -141,6 +141,8 @@ using {parentClassPath.ClassNamespace};";
             "timeonly" => "TimeOnly",
             "datetimeoffset" => "DateTimeOffset",
             "datetimeoffset?" => "DateTimeOffset?",
+            "timespan" => "TimeSpan",
+            "timespan?" => "TimeSpan?",
             "guid" => "Guid",
             _ => prop
         };
