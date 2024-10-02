@@ -155,25 +155,71 @@ public sealed class {dbContextName}(DbContextOptions<{dbContextName}> options,
 
     private static string SoftDeleteFilterClass()
     {
-        return $@"public static class Extensions
-{{
-    public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
-    {{
-        Expression<Func<BaseEntity, bool>> filterExpr = e => !e.IsDeleted;
-        foreach (var mutableEntityType in modelBuilder.Model.GetEntityTypes()
-            .Where(m => m.ClrType.IsAssignableTo(typeof(BaseEntity))))
-        {{
-            // modify expression to handle correct child type
-            var parameter = Expression.Parameter(mutableEntityType.ClrType);
-            var body = ReplacingExpressionVisitor
-                .Replace(filterExpr.Parameters.First(), parameter, filterExpr.Body);
-            var lambdaExpression = Expression.Lambda(body, parameter);
-
-            // set filter
-            mutableEntityType.SetQueryFilter(lambdaExpression);
-        }}
-    }}
-}}";
+        return 
+            /* language=c# */
+            $$"""
+                 public static class Extensions
+                 {
+                     public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
+                     {
+                         Expression<Func<BaseEntity, bool>> filterExpr = e => !e.IsDeleted;
+                         foreach (var mutableEntityType in modelBuilder.Model.GetEntityTypes()
+                             .Where(m => m.ClrType.IsAssignableTo(typeof(BaseEntity))))
+                         {
+                             // modify expression to handle correct child type
+                             var parameter = Expression.Parameter(mutableEntityType.ClrType);
+                             var body = ReplacingExpressionVisitor
+                                 .Replace(filterExpr.Parameters.First(), parameter, filterExpr.Body);
+                             var lambdaExpression = Expression.Lambda(body, parameter);
+                 
+                             // set filter
+                             mutableEntityType.SetQueryFilter(lambdaExpression);
+                         }
+                     }
+                 
+                     public static async Task<TEntity> GetByIdOrDefault<TEntity> (this DbSet<TEntity> dbSet, 
+                         Guid id, 
+                         CancellationToken cancellationToken = default) 
+                             where TEntity : BaseEntity
+                     {
+                         return await dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+                     }
+                     
+                     public static async Task<TEntity> GetByIdOrDefault<TEntity> (this IQueryable<TEntity> query, 
+                         Guid id, 
+                         CancellationToken cancellationToken = default) 
+                             where TEntity : BaseEntity
+                     {
+                         return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+                     } 
+                     
+                     public static async Task<TEntity> GetById<TEntity> (this DbSet<TEntity> dbSet, 
+                         Guid id, 
+                         CancellationToken cancellationToken = default) 
+                             where TEntity : BaseEntity
+                     {
+                         var result = await dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+                     
+                         return result.MustBeFoundOrThrow();
+                     }
+                     
+                     public static async Task<TEntity> GetById<TEntity> (this IQueryable<TEntity> query, 
+                         Guid id, 
+                         CancellationToken cancellationToken = default) 
+                             where TEntity : BaseEntity
+                     {
+                         var result = await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+                     
+                         return result.MustBeFoundOrThrow();
+                     }
+                 
+                     public static TEntity MustBeFoundOrThrow<TEntity>(this TEntity entity)
+                         where TEntity : BaseEntity
+                     {
+                          return entity ?? throw new NotFoundException($"{typeof(TEntity).Name} was not found.");
+                     }
+                 }
+                 """;
     }
 
     private void RegisterContext(string srcDirectory, DbProvider dbProvider, string dbContextName, string dbName, string localDbConnection, NamingConventionEnum namingConventionEnum, string projectBaseName)
