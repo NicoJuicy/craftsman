@@ -25,7 +25,7 @@ public class NextJsApiGetEntityBuilder
 
     public static string GetApiText(string entityName, string entityPlural, string clientName)
     {
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var readDtoName = FileNames.GetDtoName(entityName, Dto.Read);
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();

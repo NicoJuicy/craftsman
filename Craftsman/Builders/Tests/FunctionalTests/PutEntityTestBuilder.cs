@@ -60,7 +60,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
         var pkName = Entity.PrimaryKeyProperty.Name;
         var fakeCreationDto = FileNames.FakerName(FileNames.GetDtoName(entity.Name, Dto.Creation));
 
-        var testName = $"put_{entity.Name.ToLower()}_returns_nocontent_when_entity_exists";
+        var testName = $"put_{entity.Name.ToLowerInvariant()}_returns_nocontent_when_entity_exists";
         testName += isProtected ? "_and_auth_credentials_are_valid" : "";
         var clientAuth = isProtected ? @$"
 
@@ -95,7 +95,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task put_{entity.Name.ToLower()}_returns_unauthorized_without_valid_token()
+    public async Task put_{entity.Name.ToLowerInvariant()}_returns_unauthorized_without_valid_token()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {FileNames.FakeBuilderName(entity.Name)}().Build();
@@ -121,7 +121,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task put_{entity.Name.ToLower()}_returns_forbidden_without_proper_scope()
+    public async Task put_{entity.Name.ToLowerInvariant()}_returns_forbidden_without_proper_scope()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {FileNames.FakeBuilderName(entity.Name)}().Build();

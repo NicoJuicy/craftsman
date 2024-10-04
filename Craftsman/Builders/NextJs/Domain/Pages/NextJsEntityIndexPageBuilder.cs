@@ -25,7 +25,7 @@ public class NextJsEntityIndexPageBuilder
 
     public static string GetFileText(string entityName, string entityPlural, List<NextJsEntityProperty> properties)
     {
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var addPermission = FeatureType.AddRecord.DefaultPermission(entityPlural, null);

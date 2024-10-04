@@ -56,7 +56,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         var lowercaseEntityName = entity.Name.LowercaseFirstLetter();
 
         return $@"[Fact]
-    public async Task can_add_new_{entity.Name.ToLower()}_to_db()
+    public async Task can_add_new_{entity.Name.ToLowerInvariant()}_to_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

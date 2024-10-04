@@ -26,7 +26,7 @@ public class NextJsApiUpdateEntityBuilder
     public static string GetApiText(string entityName, string entityPlural, string clientName)
     {
         var dtoForUpdateName = FileNames.GetDtoName(entityName, Dto.Update);
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var entityLowerFirst = entityName.LowercaseFirstLetter();

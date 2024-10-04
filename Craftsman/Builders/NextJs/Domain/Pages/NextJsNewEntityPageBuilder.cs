@@ -24,7 +24,7 @@ public class NextJsNewEntityPageBuilder
 
     public static string GetFileText(string entityName, string entityPlural)
     {
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityNameUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var formName = FileNames.NextJsEntityFeatureFormName(entityName);

@@ -185,7 +185,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
             var voProperties = entityThatHasValueObjectProperties.Properties.Where(x => x.IsValueObject).ToList();
             foreach (var entityProperty in voProperties)
             {
-                if (entityProperty.Type.ToLower() != "string")
+                if (entityProperty.Type.ToLowerInvariant() != "string")
                 {
                     new EntityMappingModifier(_fileSystem, _consoleWriter)
                         .UpdateMappingAttributesForValueObject(srcDirectory, 

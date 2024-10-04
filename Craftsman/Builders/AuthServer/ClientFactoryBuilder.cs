@@ -36,7 +36,7 @@ public class ClientFactory
         InputList<string>? redirectUris = null,
         InputList<string>? webOrigins = null)
     {{
-        return new Client($""{{clientName.ToLower()}}-client"", new ClientArgs()
+        return new Client($""{{clientName.ToLowerInvariant()}}-client"", new ClientArgs()
         {{
             RealmId = realmId,
             ClientId = clientId,
@@ -67,7 +67,7 @@ public class ClientFactory
         string clientName, 
         string baseUrl)
     {{
-        return new Client($""{{clientName.ToLower()}}-client"", new ClientArgs()
+        return new Client($""{{clientName.ToLowerInvariant()}}-client"", new ClientArgs()
         {{
             RealmId = realmId,
             ClientId = clientId,

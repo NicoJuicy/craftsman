@@ -128,10 +128,10 @@ using {parentClassPath.ClassNamespace};";
     public static string PropTypeCleanupDotNet(string prop)
     {
         var lowercaseProps = new string[] { "string", "int", "decimal", "double", "float", "object", "bool", "char", "byte", "ushort", "uint", "ulong" };
-        if (lowercaseProps.Contains(prop.ToLower()))
-            return prop.ToLower();
+        if (lowercaseProps.Contains(prop.ToLowerInvariant()))
+            return prop.ToLowerInvariant();
 
-        return prop.ToLower() switch
+        return prop.ToLowerInvariant() switch
         {
             "datetime" => "DateTime",
             "datetime?" => "DateTime?",
@@ -150,7 +150,7 @@ using {parentClassPath.ClassNamespace};";
 
     public static TypescriptPropertyType PropTypeCleanupTypeScript(string prop)
     {
-        return prop.ToLower() switch
+        return prop.ToLowerInvariant() switch
         {
             "boolean" => TypescriptPropertyType.BooleanProperty,
             "bool" => TypescriptPropertyType.BooleanProperty,

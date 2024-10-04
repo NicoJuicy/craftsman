@@ -109,5 +109,5 @@ public static class FileNames
     }
 
     public static string EndpointBaseGenerator(string entityNamePlural)
-        => $@"api/v{{v:apiVersion}}/{entityNamePlural.ToLower()}";
+        => $@"api/v{{v:apiVersion}}/{entityNamePlural.ToLowerInvariant()}";
 }

@@ -10,7 +10,7 @@ public static class Extensions
         if (string.IsNullOrEmpty(value))
             return value;
         // Return char and concat substring.
-        return char.ToUpper(value[0]) + value.Substring(1);
+        return char.ToUpperInvariant(value[0]) + value.Substring(1);
     }
 
     public static string LowercaseFirstLetter(this string value)
@@ -20,7 +20,7 @@ public static class Extensions
             return value;
 
         // Return char and concat substring.
-        return char.ToLower(value[0]) + value.Substring(1);
+        return char.ToLowerInvariant(value[0]) + value.Substring(1);
     }
 
     public static string EscapeCurlyBraces(this string value)

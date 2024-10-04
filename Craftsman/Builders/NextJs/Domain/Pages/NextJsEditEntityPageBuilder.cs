@@ -24,7 +24,7 @@ public class NextJsEditEntityPageBuilder
 
     public static string GetFileText(string entityName, string entityPlural)
     {
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityLowerFirst = entityName.LowercaseFirstLetter();

@@ -57,7 +57,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
 
 
-        var testName = $"create_{entity.Name.ToLower()}_returns_created_using_valid_dto";
+        var testName = $"create_{entity.Name.ToLowerInvariant()}_returns_created_using_valid_dto";
         testName += isProtected ? "_and_valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -86,7 +86,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task create_{entity.Name.ToLower()}_returns_unauthorized_without_valid_token()
+    public async Task create_{entity.Name.ToLowerInvariant()}_returns_unauthorized_without_valid_token()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {fakeCreationDto} {{ }}.Generate();
@@ -107,7 +107,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task create_{entity.Name.ToLower()}_returns_forbidden_without_proper_scope()
+    public async Task create_{entity.Name.ToLowerInvariant()}_returns_forbidden_without_proper_scope()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {fakeCreationDto} {{ }}.Generate();

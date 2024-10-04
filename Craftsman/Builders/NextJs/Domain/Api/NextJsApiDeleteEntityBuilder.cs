@@ -25,7 +25,7 @@ public class NextJsApiDeleteEntityBuilder
 
     public static string GetApiText(string entityName, string entityPlural, string clientName)
     {
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var keysImport = FileNames.NextJsApiKeysFilename(entityName);

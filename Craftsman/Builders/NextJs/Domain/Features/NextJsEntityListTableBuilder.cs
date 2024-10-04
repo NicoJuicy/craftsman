@@ -27,7 +27,7 @@ public class NextJsEntityListTableBuilder
     public static string GetFileText(string entityName, string entityPlural, List<NextJsEntityProperty> properties)
     {
         var readDtoName = FileNames.GetDtoName(entityName, Dto.Read);
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityPluralUpperFirst = entityPlural.UppercaseFirstLetter();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();

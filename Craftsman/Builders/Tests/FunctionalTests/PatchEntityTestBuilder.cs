@@ -66,7 +66,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
         var lookupVal = "_faker.Lorem.Word()";
         var fakeCreationDto = FileNames.FakerName(FileNames.GetDtoName(entity.Name, Dto.Creation));
 
-        var testName = $"patch_{entity.Name.ToLower()}_returns_nocontent_when_using_valid_patchdoc_on_existing_entity";
+        var testName = $"patch_{entity.Name.ToLowerInvariant()}_returns_nocontent_when_using_valid_patchdoc_on_existing_entity";
         testName += isProtected ? "_and__valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -113,7 +113,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task patch_{entity.Name.ToLower()}_returns_unauthorized_without_valid_token()
+    public async Task patch_{entity.Name.ToLowerInvariant()}_returns_unauthorized_without_valid_token()
     {{
         // Arrange
         var {fakeEntityVariableName} = {fakeEntity}.Generate(new {fakeCreationDto}().Generate());
@@ -141,7 +141,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task patch_{entity.Name.ToLower()}_returns_forbidden_without_proper_scope()
+    public async Task patch_{entity.Name.ToLowerInvariant()}_returns_forbidden_without_proper_scope()
     {{
         // Arrange
         var {fakeEntityVariableName} = {fakeEntity}.Generate(new {fakeCreationDto}().Generate());

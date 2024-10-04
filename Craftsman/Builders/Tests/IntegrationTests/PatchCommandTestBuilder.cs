@@ -74,7 +74,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         var fakeCreationDto = FileNames.FakerName(FileNames.GetDtoName(entity.Name, Dto.Creation));
 
         return $@"[Fact]
-    public async Task can_patch_existing_{entity.Name.ToLower()}_in_db()
+    public async Task can_patch_existing_{entity.Name.ToLowerInvariant()}_in_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();
@@ -127,7 +127,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
 
         return badId == "" ? "" : $@"
     [Fact]
-    public async Task patch_{entity.Name.ToLower()}_throws_notfound_exception_when_record_does_not_exist()
+    public async Task patch_{entity.Name.ToLowerInvariant()}_throws_notfound_exception_when_record_does_not_exist()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

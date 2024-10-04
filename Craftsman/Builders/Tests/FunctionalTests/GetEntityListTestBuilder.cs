@@ -51,7 +51,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
     private static string GetEntityTest(Entity entity, bool isProtected)
     {
-        var testName = $"get_{entity.Name.ToLower()}_list_returns_success";
+        var testName = $"get_{entity.Name.ToLowerInvariant()}_list_returns_success";
         testName += isProtected ? "_using_valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -76,7 +76,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
     {
         return $@"
     [Fact]
-    public async Task get_{entity.Name.ToLower()}_list_returns_unauthorized_without_valid_token()
+    public async Task get_{entity.Name.ToLowerInvariant()}_list_returns_unauthorized_without_valid_token()
     {{
         // Arrange
         // N/A
@@ -93,7 +93,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
     {
         return $@"
     [Fact]
-    public async Task get_{entity.Name.ToLower()}_list_returns_forbidden_without_proper_scope()
+    public async Task get_{entity.Name.ToLowerInvariant()}_list_returns_forbidden_without_proper_scope()
     {{
         // Arrange
         FactoryClient.AddAuth();

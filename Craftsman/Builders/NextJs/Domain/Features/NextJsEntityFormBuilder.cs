@@ -29,7 +29,7 @@ public class NextJsEntityFormBuilder
         var dtoForCreationName = FileNames.GetDtoName(entityName, Dto.Creation);
         var dtoForUpdateName = FileNames.GetDtoName(entityName, Dto.Update);
         var readDtoName = FileNames.GetDtoName(entityName, Dto.Read);
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var entityLowerFirst = entityName.LowercaseFirstLetter();

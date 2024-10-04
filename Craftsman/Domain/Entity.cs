@@ -42,7 +42,7 @@ public class Entity
     /// </summary>
     public string Lambda
     {
-        get => _lambda ?? Name.Substring(0, 1).ToLower();
+        get => _lambda ?? Name.Substring(0, 1).ToLowerInvariant();
         set => _lambda = value;
     }
 

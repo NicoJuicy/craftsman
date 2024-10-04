@@ -64,7 +64,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         var fakeParentEntity = $"{feature.ParentEntity.LowercaseFirstLetter()}";
 
         return $@"[Fact]
-    public async Task can_add_new_{entity.Name.ToLower()}_list_to_db()
+    public async Task can_add_new_{entity.Name.ToLowerInvariant()}_list_to_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

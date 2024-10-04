@@ -49,7 +49,7 @@ public class EntityProperty
         get => !string.IsNullOrEmpty(ForeignEntityName);
     }
     
-    public bool IsStringArray => Type.ToLower()
+    public bool IsStringArray => Type.ToLowerInvariant()
         .Trim()
         .Replace("?", "") == "string[]";
     
@@ -120,7 +120,7 @@ public class EntityProperty
         {
             if (IsValueObject) return false;
             
-            var rawType = Type.ToLower().Trim().Replace("?", "");
+            var rawType = Type.ToLowerInvariant().Trim().Replace("?", "");
             return rawType is "string"
                 or "byte"
                 or "sbyte"
@@ -152,7 +152,7 @@ public class EntityProperty
     public string Relationship
     {
         get => _relationship;
-        set => _relationship = value.ToLower().Replace("one", "1");
+        set => _relationship = value.ToLowerInvariant().Replace("one", "1");
     }
     public DbRelationship GetDbRelationship => GetDbRelationshipFromName();
     

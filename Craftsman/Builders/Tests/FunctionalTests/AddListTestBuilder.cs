@@ -64,7 +64,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
         var fakeParentEntity = $"fake{feature.ParentEntity}";
         var fakeParentCreationDto = FileNames.FakerName(FileNames.GetDtoName(feature.ParentEntity, Dto.Creation));
 
-        var testName = $"create_{entity.Name.ToLower()}_list_returns_created_using_valid_dto";
+        var testName = $"create_{entity.Name.ToLowerInvariant()}_list_returns_created_using_valid_dto";
         testName += isProtected ? "_and_valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -82,7 +82,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         // Act
         var route = ApiRoutes.{entity.Plural}.CreateBatch();
-        var result = await FactoryClient.PostJsonRequestAsync($""{{route}}?{feature.BatchPropertyName.ToLower()}={{{fakeParentEntity}.Id}}"", {fakeEntityVariableName});
+        var result = await FactoryClient.PostJsonRequestAsync($""{{route}}?{feature.BatchPropertyName.ToLowerInvariant()}={{{fakeParentEntity}.Id}}"", {fakeEntityVariableName});
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -95,7 +95,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
         var fakeEntityForCreation = $"Fake{createDto}";
         var fakeEntityVariableName = $"{entity.Name.LowercaseFirstLetter()}List";
 
-        var testName = $"create_{entity.Name.ToLower()}_list_returns_notfound_when_fk_doesnt_exist";
+        var testName = $"create_{entity.Name.ToLowerInvariant()}_list_returns_notfound_when_fk_doesnt_exist";
         testName += isProtected ? "_and_valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -110,7 +110,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         // Act
         var route = ApiRoutes.{entity.Plural}.CreateBatch();
-        var result = await FactoryClient.PostJsonRequestAsync($""{{route}}?{feature.BatchPropertyName.ToLower()}={{Guid.NewGuid()}}"", {fakeEntityVariableName});
+        var result = await FactoryClient.PostJsonRequestAsync($""{{route}}?{feature.BatchPropertyName.ToLowerInvariant()}={{Guid.NewGuid()}}"", {fakeEntityVariableName});
 
         // Assert
         result.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -123,7 +123,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
         var fakeEntityForCreation = $"Fake{createDto}";
         var fakeEntityVariableName = $"{entity.Name.LowercaseFirstLetter()}List";
 
-        var testName = $"create_{entity.Name.ToLower()}_list_returns_4xx_when_no_fk_param";
+        var testName = $"create_{entity.Name.ToLowerInvariant()}_list_returns_4xx_when_no_fk_param";
         testName += isProtected ? "_and_valid_auth_credentials" : "";
         var clientAuth = isProtected ? @$"
 
@@ -152,7 +152,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task create_{entity.Name.ToLower()}_list_returns_unauthorized_without_valid_token()
+    public async Task create_{entity.Name.ToLowerInvariant()}_list_returns_unauthorized_without_valid_token()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {fakeEntity} {{ }}.Generate();
@@ -175,7 +175,7 @@ public class {Path.GetFileNameWithoutExtension(classPath.FullClassPath)} : TestB
 
         return $@"
     [Fact]
-    public async Task create_{entity.Name.ToLower()}_list_returns_forbidden_without_proper_scope()
+    public async Task create_{entity.Name.ToLowerInvariant()}_list_returns_forbidden_without_proper_scope()
     {{
         // Arrange
         var {fakeEntityVariableName} = new {fakeEntity} {{ }}.Generate();

@@ -52,7 +52,7 @@ using System.Threading.Tasks;{foreignEntityUsings}
 public class {classPath.ClassNameWithoutExt} : TestBase
 {{
     [Fact]
-    public async Task can_update_existing_{entity.Name.ToLower()}_in_db()
+    public async Task can_update_existing_{entity.Name.ToLowerInvariant()}_in_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

@@ -55,7 +55,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         var pkName = Entity.PrimaryKeyProperty.Name;
 
         return $@"[Fact]
-    public async Task can_get_existing_{entity.Name.ToLower()}_with_accurate_props()
+    public async Task can_get_existing_{entity.Name.ToLowerInvariant()}_with_accurate_props()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();
@@ -77,7 +77,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         return badId == "" ? "" : $@"
 
     [Fact]
-    public async Task get_{entity.Name.ToLower()}_throws_notfound_exception_when_record_does_not_exist()
+    public async Task get_{entity.Name.ToLowerInvariant()}_throws_notfound_exception_when_record_does_not_exist()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

@@ -161,7 +161,7 @@ public static class ClassPathHelper
 
     public static ClassPath NextJsPagesClassPath(string nextSrc, string entityPlural, string className)
     {
-        return new ClassPath(nextSrc, Path.Combine("pages", entityPlural.ToLower()), className);
+        return new ClassPath(nextSrc, Path.Combine("pages", entityPlural.ToLowerInvariant()), className);
     }
 
     public static ClassPath NextJsSpaFeatureClassPath(string nextSrc, string entityName, NextJsDomainCategory category, string className)

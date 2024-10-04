@@ -27,7 +27,7 @@ public class NextJsApiAddEntityBuilder
     {
         var dtoForCreationName = FileNames.GetDtoName(entityName, Dto.Creation);
         var readDtoName = FileNames.GetDtoName(entityName, Dto.Read);
-        var entityPluralLowercase = entityPlural.ToLower();
+        var entityPluralLowercase = entityPlural.ToLowerInvariant();
         var entityPluralLowercaseFirst = entityPlural.LowercaseFirstLetter();
         var entityUpperFirst = entityName.UppercaseFirstLetter();
         var keysImport = FileNames.NextJsApiKeysFilename(entityName);

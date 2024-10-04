@@ -61,7 +61,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
 
 
         return $@"[Fact]
-    public async Task can_delete_{entity.Name.ToLower()}_from_db()
+    public async Task can_delete_{entity.Name.ToLowerInvariant()}_from_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();
@@ -87,7 +87,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         return badId == "" ? "" : $@"
 
     [Fact]
-    public async Task delete_{entity.Name.ToLower()}_throws_notfoundexception_when_record_does_not_exist()
+    public async Task delete_{entity.Name.ToLowerInvariant()}_throws_notfoundexception_when_record_does_not_exist()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();
@@ -110,7 +110,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         return $@"
 
     [Fact]
-    public async Task can_softdelete_{entity.Name.ToLower()}_from_db()
+    public async Task can_softdelete_{entity.Name.ToLowerInvariant()}_from_db()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

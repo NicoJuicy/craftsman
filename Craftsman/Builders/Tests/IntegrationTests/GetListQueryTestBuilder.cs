@@ -60,7 +60,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         
         return @$"
     [Fact]
-    public async Task can_get_{entity.Name.ToLower()}_list()
+    public async Task can_get_{entity.Name.ToLowerInvariant()}_list()
     {{
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();

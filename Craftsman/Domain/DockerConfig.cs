@@ -9,7 +9,7 @@ public class DockerConfig
     private string _dbName;
     public string DbName
     {
-        get => _dbName ?? $"dev_{ProjectName.ToLower()}";
+        get => _dbName ?? $"dev_{ProjectName.ToLowerInvariant()}";
         set => _dbName = value;
     }
 
@@ -49,21 +49,21 @@ public class DockerConfig
     private string _dbHostName;
     public string DbHostName
     {
-        get => _dbHostName ?? $"{ProjectName.ToLower()}-db";
+        get => _dbHostName ?? $"{ProjectName.ToLowerInvariant()}-db";
         set => _dbHostName = value;
     }
 
     private string _apiServiceName;
     public string ApiServiceName
     {
-        get => _apiServiceName ?? $"{ProjectName.ToLower()}-api";
+        get => _apiServiceName ?? $"{ProjectName.ToLowerInvariant()}-api";
         set => _apiServiceName = value;
     }
 
     private string _volumeName;
     public string VolumeName
     {
-        get => _volumeName ?? $"{ProjectName.ToLower()}-data";
+        get => _volumeName ?? $"{ProjectName.ToLowerInvariant()}-data";
         set => _volumeName = value;
     }
 
