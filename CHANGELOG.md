@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * New extension methods on dbcontext for direct `GetById` options
 * Consolidated options pattern object and cleaned it up
+* Remove functional tests scaffolding (other than health)
 
 ### Fixed
 
