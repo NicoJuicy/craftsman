@@ -392,7 +392,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.GetRecord.Name)
         {
-            new QueryGetRecordBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new QueryGetRecordBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             switch (entity.Name)
             {
                 case "RolePermission":
@@ -412,7 +412,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.GetList.Name)
         {
-            new QueryGetListBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new QueryGetListBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             new GetListQueryTestBuilder(utilities).CreateTests(testDirectory, srcDirectory, entity, projectBaseName, feature.PermissionName, feature.IsProtected);
             new ControllerModifier(fileSystem).AddEndpoint(srcDirectory, FeatureType.GetList, entity, addSwaggerComments,
                 feature, projectBaseName);
@@ -420,7 +420,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.GetAll.Name)
         {
-            new QueryGetAllBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new QueryGetAllBuilder(utilities).CreateQuery(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             new GetAllQueryTestBuilder(utilities).CreateTests(testDirectory, srcDirectory, entity, projectBaseName, feature.PermissionName, feature.IsProtected);
             new ControllerModifier(fileSystem).AddEndpoint(srcDirectory, FeatureType.GetAll, entity, addSwaggerComments,
                 feature, projectBaseName);

@@ -14,14 +14,14 @@ public class QueryGetAllBuilder
         _utilities = utilities;
     }
 
-    public void CreateQuery(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName)
+    public void CreateQuery(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.GetAllEntitiesFeatureClassName(entity.Plural)}.cs", entity.Plural, projectBaseName);
-        var fileText = GetQueryFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName);
+        var fileText = GetQueryFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetQueryFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetQueryFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.GetAllEntitiesFeatureClassName(entity.Plural);
         var queryListName = FileNames.QueryAllName();
@@ -33,6 +33,7 @@ public class QueryGetAllBuilder
         var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
         var resourcesClassPath = ClassPathHelper.WebApiResourcesClassPath(srcDirectory, "", projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -45,6 +46,7 @@ public class QueryGetAllBuilder
         return @$"namespace {classNamespace};
 
 using {dtoClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {entityServicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};
 using {resourcesClassPath.ClassNamespace};{permissionsUsing}
@@ -58,12 +60,12 @@ public static class {className}
 {{
     public sealed record {queryListName}() : IRequest<List<{readDto}>>;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{queryListName}, List<{readDto}>>
     {{
         public async Task<List<{readDto}>> Handle({queryListName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            return {repoInterfaceProp}.Query()
+            return dbContext.{entity.Plural}
                 .AsNoTracking()
                 .To{FileNames.GetDtoName(entity.Name, Dto.Read)}Queryable()
                 .ToList();

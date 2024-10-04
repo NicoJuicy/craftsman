@@ -5,23 +5,17 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class QueryGetRecordBuilder
+public class QueryGetRecordBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public QueryGetRecordBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
-    public void CreateQuery(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName)
+    public void CreateQuery(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.GetEntityFeatureClassName(entity.Name)}.cs", entity.Plural, projectBaseName);
-        var fileText = GetQueryFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName);
-        _utilities.CreateFile(classPath, fileText);
+        var fileText = GetQueryFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName, dbContextName);
+        utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetQueryFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetQueryFileText(string classNamespace, Entity entity, string srcDirectory, 
+        string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.GetEntityFeatureClassName(entity.Name);
         var queryRecordName = FileNames.QueryRecordName();
@@ -29,12 +23,11 @@ public class QueryGetRecordBuilder
 
         var primaryKeyPropType = Entity.PrimaryKeyProperty.Type;
         var lowercasePrimaryKey = $"{entity.Name}Id";
-        var repoInterface = FileNames.EntityRepositoryInterface(entity.Name);
-        var repoInterfaceProp = $"{entity.Name.LowercaseFirstLetter()}Repository";
 
         var dtoClassPath = ClassPathHelper.DtoClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -43,10 +36,11 @@ public class QueryGetRecordBuilder
             out string heimGuardCtor, 
             out string permissionCheck, 
             out string permissionsUsing);
-
+        
         return @$"namespace {classNamespace};
 
 using {dtoClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {entityServicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};{permissionsUsing}
 using Mappings;
@@ -56,12 +50,12 @@ public static class {className}
 {{
     public sealed record {queryRecordName}({primaryKeyPropType} {lowercasePrimaryKey}) : IRequest<{readDto}>;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{queryRecordName}, {readDto}>
     {{
         public async Task<{readDto}> Handle({queryRecordName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var result = await {repoInterfaceProp}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
+            var result = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
             return result.To{readDto}();
         }}
     }}
