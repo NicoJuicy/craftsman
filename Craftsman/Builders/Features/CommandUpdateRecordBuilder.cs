@@ -14,14 +14,14 @@ public class CommandUpdateRecordBuilder
         _utilities = utilities;
     }
 
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.UpdateEntityFeatureClassName(entity.Name)}.cs", entity.Plural, projectBaseName);
-        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName);
+        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.UpdateEntityFeatureClassName(entity.Name);
         var updateCommandName = FileNames.CommandUpdateName();
@@ -43,6 +43,7 @@ public class CommandUpdateRecordBuilder
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
         var modelClassPath = ClassPathHelper.EntityModelClassPath(srcDirectory, entity.Name, entity.Plural, null, projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -56,7 +57,7 @@ public class CommandUpdateRecordBuilder
 
 using {entityClassPath.ClassNamespace};
 using {dtoClassPath.ClassNamespace};
-using {entityServicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
 using {modelClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};{permissionsUsing}
@@ -67,17 +68,16 @@ public static class {className}
 {{
     public sealed record {updateCommandName}({primaryKeyPropType} {lowercasePrimaryKey}, {updateDto} {commandProp}) : IRequest;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{updateCommandName}>
     {{
         public async Task Handle({updateCommandName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var {updatedEntityProp} = await {repoInterfaceProp}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
+            var {updatedEntityProp} = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken);
             var {modelToUpdateVariableName} = request.{commandProp}.To{EntityModel.Update.GetClassName(entity.Name)}();
             {updatedEntityProp}.Update({modelToUpdateVariableName});
 
-            {repoInterfaceProp}.Update({updatedEntityProp});
-            await unitOfWork.CommitChanges(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }}
     }}
 }}";

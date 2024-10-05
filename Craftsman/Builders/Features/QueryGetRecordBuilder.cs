@@ -41,10 +41,10 @@ public class QueryGetRecordBuilder(ICraftsmanUtilities utilities)
 
 using {dtoClassPath.ClassNamespace};
 using {dbContextClassPath.ClassNamespace};
-using {entityServicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};{permissionsUsing}
 using Mappings;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 public static class {className}
 {{
@@ -55,7 +55,9 @@ public static class {className}
     {{
         public async Task<{readDto}> Handle({queryRecordName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var result = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
+            var result = await dbContext.{entity.Plural}
+                .AsNoTracking()
+                .GetById(request.{lowercasePrimaryKey}, cancellationToken);
             return result.To{readDto}();
         }}
     }}

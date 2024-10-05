@@ -13,14 +13,14 @@ public class CommandDeleteRecordBuilder
         _utilities = utilities;
     }
 
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.DeleteEntityFeatureClassName(entity.Name)}.cs", entity.Plural, projectBaseName);
-        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName);
+        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permissionName, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.DeleteEntityFeatureClassName(entity.Name);
         var deleteCommandName = FileNames.CommandDeleteName();
@@ -34,6 +34,7 @@ public class CommandDeleteRecordBuilder
         var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -45,7 +46,7 @@ public class CommandDeleteRecordBuilder
 
         return @$"namespace {classNamespace};
 
-using {entityServicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};{permissionsUsing}
 using MediatR;
@@ -54,14 +55,14 @@ public static class {className}
 {{
     public sealed record {deleteCommandName}({primaryKeyPropType} {lowercasePrimaryKey}) : IRequest;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{deleteCommandName}>
     {{
         public async Task Handle({deleteCommandName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var recordToDelete = await {repoInterfaceProp}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
-            {repoInterfaceProp}.Remove(recordToDelete);
-            await unitOfWork.CommitChanges(cancellationToken);
+            var recordToDelete = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
+            dbContext.Remove(recordToDelete);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }}
     }}
 }}";

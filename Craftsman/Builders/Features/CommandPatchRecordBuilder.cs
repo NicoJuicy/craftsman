@@ -14,15 +14,15 @@ public class CommandPatchRecordBuilder
         _utilities = utilities;
     }
 
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.PatchEntityFeatureClassName(entity.Name)}.cs", entity.Plural, projectBaseName);
         var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected,
-            permissionName);
+            permissionName, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.PatchEntityFeatureClassName(entity.Name);
         var patchCommandName = FileNames.CommandPatchName();
@@ -41,6 +41,7 @@ public class CommandPatchRecordBuilder
         var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -53,7 +54,7 @@ public class CommandPatchRecordBuilder
         return @$"namespace {classNamespace};
 
 using {dtoClassPath.ClassNamespace};
-using {entityServicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};{permissionsUsing}
 using FluentValidation.Results;
@@ -64,7 +65,7 @@ public static class {className}
 {{
     public sealed record {patchCommandName}({primaryKeyPropType} {primaryKeyPropName}, JsonPatchDocument<{updateDto}> PatchDoc) : IRequest;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{patchCommandName}>
     {{
 
@@ -83,7 +84,7 @@ public static class {className}
             request.PatchDoc.ApplyTo({patchedEntityProp});
 
             {updatedEntityProp}.Update({patchedEntityProp});
-            await unitOfWork.CommitChanges(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return true;
         }}

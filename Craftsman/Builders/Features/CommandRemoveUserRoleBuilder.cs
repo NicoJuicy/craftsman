@@ -5,36 +5,23 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class CommandRemoveUserRoleBuilder
+public class CommandRemoveUserRoleBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public CommandRemoveUserRoleBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.RemoveUserRoleFeatureClassName()}.cs", entity.Plural, projectBaseName);
-        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, dbContextName);
+        utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, string dbContextName)
     {
-        var entityClassPath = ClassPathHelper.EntityClassPath(srcDirectory, "", entity.Plural, projectBaseName);
-        var dtoClassPath = ClassPathHelper.DtoClassPath(srcDirectory, "", entity.Plural, projectBaseName);
-        var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
-        var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
 
         return @$"namespace {classNamespace};
 
-using {entityServicesClassPath.ClassNamespace};
-using {entityClassPath.ClassNamespace};
-using {dtoClassPath.ClassNamespace};
-using {servicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};
 using HeimGuard;
 using MediatR;
@@ -44,28 +31,19 @@ public static class {FileNames.RemoveUserRoleFeatureClassName()}
 {{
     public sealed record Command(Guid UserId, string Role) : IRequest;
 
-    public sealed class Handler : IRequestHandler<Command>
+    public sealed class Handler({dbContextName} dbContext,
+        IHeimGuardClient heimGuard) : IRequestHandler<Command>
     {{
-        private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IHeimGuardClient _heimGuard;
-
-        public Handler(IUserRepository userRepository, IUnitOfWork unitOfWork, IHeimGuardClient heimGuard)
-        {{
-            _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
-            _heimGuard = heimGuard;
-        }}
-
         public async Task Handle(Command request, CancellationToken cancellationToken)
         {{
-            await _heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanRemoveUserRoles);
-            var user = await _userRepository.GetById(request.UserId, true, cancellationToken);
+            await heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanRemoveUserRoles);
+            var user = await dbContext.GetUserAggregate().GetById(request.UserId, cancellationToken);
 
             var roleToRemove = user.RemoveRole(new Role(request.Role));
-            _userRepository.RemoveRole(roleToRemove);
-            _userRepository.Update(user);
-            await _unitOfWork.CommitChanges(cancellationToken);
+            dbContext.UserRoles.Remove(roleToRemove);
+            dbContext.Update(user);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
         }}
     }}
 }}";

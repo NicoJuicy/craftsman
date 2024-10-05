@@ -6,26 +6,19 @@ using Craftsman.Domain.Enums;
 using Craftsman.Helpers;
 using Craftsman.Services;
 
-public class AddUserFeatureOverrideModifier
+public class AddUserFeatureOverrideModifier(IFileSystem fileSystem)
 {
-    private readonly IFileSystem _fileSystem;
-
-    public AddUserFeatureOverrideModifier(IFileSystem fileSystem)
-    {
-        _fileSystem = fileSystem;
-    }
-
-    public void UpdateAddUserFeature(string srcDirectory, string projectBaseName)
+    public void UpdateAddUserFeature(string srcDirectory, string projectBaseName, string dbContextName)
     {
         var entityName = "User";
         var entityPlural = "Users";
         var permissionName = FeatureType.AddRecord.DefaultPermission("Users", "AddUser");
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.AddEntityFeatureClassName(entityName)}.cs", entityPlural, projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
             throw new FileNotFoundException($"The `{classPath.FullClassPath}` file could not be found.");
 
         var className = FileNames.AddEntityFeatureClassName(entityName);
@@ -46,6 +39,7 @@ public class AddUserFeatureOverrideModifier
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
         var modelClassPath = ClassPathHelper.EntityModelClassPath(srcDirectory, entityName, entityPlural, null, projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -56,11 +50,11 @@ public class AddUserFeatureOverrideModifier
             out string permissionsUsing);
 
         var tempPath = $"{classPath.FullClassPath}temp";
-        using var output = _fileSystem.File.CreateText(tempPath);
+        using var output = fileSystem.File.CreateText(tempPath);
         {
             output.WriteLine($@"namespace {classPath.ClassNamespace};
 
-using {entityServicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {entityClassPath.ClassNamespace};
 using {dtoClassPath.ClassNamespace};
 using {modelClassPath.ClassNamespace};
@@ -73,7 +67,7 @@ public static class {className}
 {{
     public sealed record {addCommandName}({createDto} {commandProp}, bool SkipPermissions = false) : IRequest<{readDto}>;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{addCommandName}, {readDto}>
     {{
         public async Task<{readDto}> Handle(Command request, CancellationToken cancellationToken)
@@ -83,11 +77,11 @@ public static class {className}
 
             var {modelToCreateVariableName} = request.{commandProp}.To{EntityModel.Creation.GetClassName(entityName)}();
             var {entityNameLowercase} = {entityName}.Create({modelToCreateVariableName});
-            await {repoInterfaceProp}.Add({entityNameLowercase}, cancellationToken);
+            await dbContext.{entityPlural}.AddAsync({entityNameLowercase}, cancellationToken);
 
-            await unitOfWork.CommitChanges(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-            var {entityNameLowercase}Added = await {repoInterfaceProp}.GetById({entityNameLowercase}.Id, cancellationToken: cancellationToken);
+            var {entityNameLowercase}Added = await dbContext.Users.GetById({entityNameLowercase}.Id, cancellationToken);
             return {entityNameLowercase}Added.To{readDto}();
         }}
     }}
@@ -95,8 +89,8 @@ public static class {className}
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
         output.Close();
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 }

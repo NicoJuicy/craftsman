@@ -37,7 +37,6 @@ using {userClassPath.ClassNamespace};
 using {userServicesClassPath.ClassNamespace};
 using {fakeUsersClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
-using {entityServicesClassPath.ClassNamespace};
 using {policyDomainClassPath.ClassNamespace};
 using {entityClassPath.ClassNamespace};
 using {modelClassPath.ClassNamespace};

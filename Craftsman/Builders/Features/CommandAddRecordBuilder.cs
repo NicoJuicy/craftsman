@@ -14,14 +14,14 @@ public class CommandAddRecordBuilder
         _utilities = utilities;
     }
 
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permission)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, bool isProtected, string permission, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{FileNames.AddEntityFeatureClassName(entity.Name)}.cs", entity.Plural, projectBaseName);
-        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permission);
+        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, projectBaseName, isProtected, permission, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = FileNames.AddEntityFeatureClassName(entity.Name);
         var addCommandName = FileNames.CommandAddName();
@@ -43,6 +43,7 @@ public class CommandAddRecordBuilder
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
         var modelClassPath = ClassPathHelper.EntityModelClassPath(srcDirectory, entity.Name, entity.Plural, null, projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -54,7 +55,7 @@ public class CommandAddRecordBuilder
 
         return @$"namespace {classNamespace};
 
-using {entityServicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {entityClassPath.ClassNamespace};
 using {dtoClassPath.ClassNamespace};
 using {modelClassPath.ClassNamespace};
@@ -67,7 +68,7 @@ public static class {className}
 {{
     public sealed record {addCommandName}({createDto} {commandProp}) : IRequest<{readDto}>;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<{addCommandName}, {readDto}>
     {{
         public async Task<{readDto}> Handle({addCommandName} request, CancellationToken cancellationToken)
@@ -75,8 +76,8 @@ public static class {className}
             var {modelToCreateVariableName} = request.{commandProp}.To{EntityModel.Creation.GetClassName(entity.Name)}();
             var {entityNameLowercase} = {entityName}.Create({modelToCreateVariableName});
 
-            await {repoInterfaceProp}.Add({entityNameLowercase}, cancellationToken);
-            await unitOfWork.CommitChanges(cancellationToken);
+            await dbContext.{entity.Plural}.AddAsync({entityNameLowercase}, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return {entityNameLowercase}.To{readDto}();
         }}

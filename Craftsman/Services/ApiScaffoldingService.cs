@@ -112,7 +112,7 @@ public class ApiScaffoldingService
         if (template.AddJwtAuthentication)
         {
             new PermissionsBuilder(_utilities).GetPermissions(srcDirectory, projectBaseName, template.AddJwtAuthentication); // <-- needs to run before entity features
-            new UserPolicyHandlerBuilder(_utilities).CreatePolicyBuilder(solutionDirectory, srcDirectory, projectBaseName);
+            new UserPolicyHandlerBuilder(_utilities).CreatePolicyBuilder(srcDirectory, projectBaseName, template.DbContext.ContextName);
             new InfrastructureServiceRegistrationModifier(_fileSystem).InitializeAuthServices(srcDirectory, projectBaseName);
             new EntityScaffoldingService(_utilities, _fileSystem, _mediator, _consoleWriter).ScaffoldRolePermissions(solutionDirectory,
                 srcDirectory,
@@ -178,14 +178,12 @@ public class ApiScaffoldingService
             projectBaseName);
         new AllEndpointsProtectedUnitTestBuilder(_utilities).CreateTests(testDirectory, projectBaseName);
         
-        if(template.AddJwtAuthentication)
-            new UserPolicyHandlerUnitTests(_utilities).CreateTests(testDirectory, srcDirectory, projectBaseName);
+        // if(template.AddJwtAuthentication)
+        //     new UserPolicyHandlerUnitTests(_utilities).CreateTests(testDirectory, srcDirectory, projectBaseName);
 
         //services
         _mediator.Send(new SharedTestUtilsBuilder.Command());
-        _mediator.Send(new UnitOfWorkBuilder.UnitOfWorkBuilderCommand(template.DbContext.ContextName));
         _mediator.Send(new IBoundaryServiceInterfaceBuilder.IBoundaryServiceInterfaceBuilderCommand());
-        _mediator.Send(new GenericRepositoryBuilder.GenericRepositoryBuilderCommand(template.DbContext.ContextName));
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Functional));
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Integration));
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Unit));

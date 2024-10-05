@@ -42,9 +42,6 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
             new ApiRouteModifier(fileSystem, consoleWriter).AddRoutes(testDirectory, entity, projectBaseName); // api routes always added to testing by default. too much of a pain to scaffold dynamically
 
             mediator.Send(new DatabaseEntityConfigBuilder.Command(entity.Name, entity.Plural, entity.Properties));
-            mediator.Send(new EntityRepositoryBuilder.Command(dbContextName, 
-                entity.Name, 
-                entity.Plural));
 
             var isProtected = entity.Features.Any(f => f.IsProtected); // <-- one more example of why it would be nice to have specific endpoints for each feature 😤
             if (entity.Features.Count > 0)
@@ -128,25 +125,27 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
             }
         }
         
-        var baseValueObjects = new List<EntityProperty>();
-        baseValueObjects.Add(new EntityProperty()
+        var baseValueObjects = new List<EntityProperty>
         {
-            ValueObjectName = "Email",
-            AsValueObject = "Email",
-        });
-        baseValueObjects.Add(new EntityProperty()
-        {
-            Name = "Percent",
-            ValueObjectName = "Percent",
-            ValueObjectPlural = "Percentages",
-            AsValueObject = "Percent",
-        });
-        baseValueObjects.Add(new EntityProperty()
-        {
-            Name = "MonetaryAmount",
-            ValueObjectName = "MonetaryAmount",
-            AsValueObject = "MonetaryAmount",
-        });
+            new()
+            {
+                ValueObjectName = "Email",
+                AsValueObject = "Email",
+            },
+            new()
+            {
+                Name = "Percent",
+                ValueObjectName = "Percent",
+                ValueObjectPlural = "Percentages",
+                AsValueObject = "Percent",
+            },
+            new()
+            {
+                Name = "MonetaryAmount",
+                ValueObjectName = "MonetaryAmount",
+                AsValueObject = "MonetaryAmount",
+            }
+        };
 
         var distinctValueObjects = entities
             .SelectMany(x => x.Properties.Where(p => p.IsValueObject))
@@ -250,10 +249,6 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
         new EntityMappingBuilder(utilities).CreateMapping(srcDirectory, entity.Name, entity.Plural, projectBaseName);
         new ApiRouteModifier(fileSystem, consoleWriter).AddRoutes(testDirectory, entity, projectBaseName);
         mediator.Send(new DatabaseEntityConfigRolePermissionBuilder.Command());
-        
-        mediator.Send(new EntityRepositoryBuilder.Command(dbContextName, 
-            entity.Name, 
-            entity.Plural));
 
         if (entity.Features.Count > 0)
             new ControllerBuilder(utilities).CreateController(solutionDirectory, srcDirectory, entity.Plural, projectBaseName, true);
@@ -322,10 +317,6 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
         mediator.Send(new DatabaseEntityConfigUserBuilder.Command());
         mediator.Send(new DatabaseEntityConfigUserRoleBuilder.Command());
         
-        mediator.Send(new UserEntityRepositoryBuilder.Command(dbContextName, 
-            userEntity.Name, 
-            userEntity.Plural));
-        
         new ControllerBuilder(utilities).CreateController(solutionDirectory, srcDirectory, userEntity.Plural, projectBaseName, true);
         new ControllerModifier(fileSystem).AddCustomUserEndpoint(srcDirectory, projectBaseName);
         
@@ -333,10 +324,10 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
         {
             AddFeatureToProject(solutionDirectory, srcDirectory, testDirectory, projectBaseName, dbContextName, addSwaggerComments, feature, userEntity, useSoftDelete);
         }
-        new CommandAddUserRoleBuilder(utilities).CreateCommand(srcDirectory, userEntity, projectBaseName);
-        new CommandRemoveUserRoleBuilder(utilities).CreateCommand(srcDirectory, userEntity, projectBaseName);
+        new CommandAddUserRoleBuilder(utilities).CreateCommand(srcDirectory, userEntity, projectBaseName, dbContextName);
+        new CommandRemoveUserRoleBuilder(utilities).CreateCommand(srcDirectory, userEntity, projectBaseName, dbContextName);
         // new AddUserFeatureBuilder(_utilities).AddFeature(srcDirectory, projectBaseName);
-        new AddUserFeatureOverrideModifier(fileSystem).UpdateAddUserFeature(srcDirectory, projectBaseName);
+        new AddUserFeatureOverrideModifier(fileSystem).UpdateAddUserFeature(srcDirectory, projectBaseName, dbContextName);
 
         // extra testing
         new FakesBuilder(utilities).CreateUserFakes(srcDirectory, solutionDirectory, testDirectory, projectBaseName, userEntity);
@@ -347,12 +338,10 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
         new FakeEntityBuilderBuilder(utilities).CreateFakeBuilder(srcDirectory, testDirectory, projectBaseName, userEntity);
         
         // need to do db modifier
-        new DbContextModifier(fileSystem).AddDbSetAndConfig(srcDirectory, new List<Entity>() { userEntity }, dbContextName, projectBaseName);
-        new DbContextModifier(fileSystem).AddDbSetAndConfig(srcDirectory, new List<Entity>() { new Entity()
-        {
-            Name = "UserRole",
-            Plural = "UserRoles"
-        } }, dbContextName, projectBaseName);
+        new DbContextModifier(fileSystem).AddDbSetAndConfig(srcDirectory, [userEntity], dbContextName, projectBaseName);
+        new DbContextModifier(fileSystem).AddDbSetAndConfig(srcDirectory, [
+            new Entity() { Name = "UserRole", Plural = "UserRoles" }
+        ], dbContextName, projectBaseName);
 
         // domain events
         mediator.Send(new CreatedDomainEventBuilder.CreatedDomainEventBuilderCommand(userEntity.Name, userEntity.Plural));
@@ -372,7 +361,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.AddRecord.Name)
         {
-            new CommandAddRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new CommandAddRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             switch (entity.Name)
             {
                 case "RolePermission":
@@ -428,7 +417,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.DeleteRecord.Name)
         {
-            new CommandDeleteRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new CommandDeleteRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             new DeleteCommandTestBuilder(utilities).CreateTests(solutionDirectory, testDirectory, srcDirectory, entity, projectBaseName, useSoftDelete, feature.PermissionName, feature.IsProtected);
             new ControllerModifier(fileSystem).AddEndpoint(srcDirectory, FeatureType.DeleteRecord, entity, addSwaggerComments,
                 feature, projectBaseName);
@@ -436,7 +425,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.UpdateRecord.Name)
         {
-            new CommandUpdateRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName);
+            new CommandUpdateRecordBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature.IsProtected, feature.PermissionName, dbContextName);
             
             switch (entity.Name)
             {
@@ -466,7 +455,7 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.AddListByFk.Name)
         {
-            new CommandAddListBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature, feature.IsProtected, feature.PermissionName);
+            new CommandAddListBuilder(utilities).CreateCommand(srcDirectory, entity, projectBaseName, feature, feature.IsProtected, feature.PermissionName, dbContextName);
             new AddListCommandTestBuilder(utilities).CreateTests(solutionDirectory, testDirectory, srcDirectory, entity, feature, projectBaseName, feature.PermissionName, feature.IsProtected);
             new ControllerModifier(fileSystem).AddEndpoint(srcDirectory, FeatureType.AddListByFk, entity, addSwaggerComments,
                 feature, projectBaseName);
@@ -481,8 +470,8 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
 
         if (feature.Type == FeatureType.Job.Name)
         {
-            mediator.Send(new JobFeatureBuilder.Command(feature, entity.Plural));
-            mediator.Send(new JobFeatureIntegrationTestBuilder.Command(feature, entity.Plural));
+            mediator.Send(new JobFeatureBuilder.Command(feature, entity.Plural, dbContextName));
+            mediator.Send(new JobFeatureIntegrationTestBuilder.Command(feature, entity.Plural, dbContextName));
         }
     }
 }

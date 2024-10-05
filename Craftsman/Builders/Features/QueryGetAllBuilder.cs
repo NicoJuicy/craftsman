@@ -47,7 +47,6 @@ public class QueryGetAllBuilder
 
 using {dtoClassPath.ClassNamespace};
 using {dbContextClassPath.ClassNamespace};
-using {entityServicesClassPath.ClassNamespace};
 using {exceptionsClassPath.ClassNamespace};
 using {resourcesClassPath.ClassNamespace};{permissionsUsing}
 using Mappings;

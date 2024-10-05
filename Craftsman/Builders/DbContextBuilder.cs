@@ -10,17 +10,8 @@ using Domain;
 using Helpers;
 using Services;
 
-public class DbContextBuilder
+public class DbContextBuilder(ICraftsmanUtilities utilities, IFileSystem fileSystem)
 {
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IFileSystem _fileSystem;
-
-    public DbContextBuilder(ICraftsmanUtilities utilities, IFileSystem fileSystem)
-    {
-        _utilities = utilities;
-        _fileSystem = fileSystem;
-    }
-
     public void CreateDbContext(string srcDirectory,
         List<Entity> entities,
         string dbContextName,
@@ -33,13 +24,13 @@ public class DbContextBuilder
     )
     {
         var classPath = ClassPathHelper.DbContextClassPath(srcDirectory, $"{dbContextName}.cs", projectBaseName);
-        var data = GetContextFileText(classPath.ClassNamespace, entities, dbContextName, srcDirectory, useSoftDelete, projectBaseName, dbProvider);
-        _utilities.CreateFile(classPath, data);
+        var data = GetContextFileText(classPath.ClassNamespace, entities, dbContextName, srcDirectory, useSoftDelete, projectBaseName);
+        utilities.CreateFile(classPath, data);
 
         RegisterContext(srcDirectory, dbProvider, dbContextName, dbName, localDbConnection, namingConventionEnum, projectBaseName);
     }
 
-    public static string GetContextFileText(string classNamespace, List<Entity> entities, string dbContextName, string srcDirectory, bool useSoftDelete, string projectBaseName, DbProvider dbProvider)
+    public static string GetContextFileText(string classNamespace, List<Entity> entities, string dbContextName, string srcDirectory, bool useSoftDelete, string projectBaseName)
     {
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var baseEntityClassPath = ClassPathHelper.EntityClassPath(srcDirectory, $"", "", projectBaseName);
@@ -54,7 +45,7 @@ public class DbContextBuilder
             : "";
         var extensions = $@"
 
-{DContextExtensionClasses(useSoftDelete)}";
+{DContextExtensionClasses(dbContextName, useSoftDelete)}";
 
         var modelBuilderFilter = useSoftDelete
             ? $@"
@@ -153,8 +144,15 @@ public sealed class {dbContextName}(DbContextOptions<{dbContextName}> options,
 }}{extensions}";
     }
 
-    private static string DContextExtensionClasses(bool useSoftDelete)
+    private static string DContextExtensionClasses(string dbContextName, bool useSoftDelete)
     {
+        var userAggregate= $$"""
+                             public static IQueryable<User> GetUserAggregate(this {{dbContextName}} dbContext)
+                             {
+                                 return dbContext.Users
+                                     .Include(u => u.Roles);
+                             }
+                             """;
         var softDelete = useSoftDelete ?
 """
 
@@ -221,7 +219,7 @@ public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
                          where TEntity : BaseEntity
                      {
                           return entity ?? throw new NotFoundException($"{typeof(TEntity).Name} was not found.");
-                     }
+                     }{{userAggregate}}
                  }
                  """;
     }
@@ -230,10 +228,10 @@ public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
     {
         var classPath = ClassPathHelper.WebApiServiceExtensionsClassPath(srcDirectory, $"{FileNames.GetInfraRegistrationName()}.cs", projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
             throw new FileNotFoundException($"The `{classPath.FullClassPath}` file could not be found.");
         InstallDbProviderNugetPackages(dbProvider, srcDirectory);
 
@@ -244,9 +242,9 @@ public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
                             .{namingConventionEnum.ExtensionMethod()}()";
 
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -277,8 +275,8 @@ public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     private static void InstallDbProviderNugetPackages(DbProvider provider, string srcDirectory)

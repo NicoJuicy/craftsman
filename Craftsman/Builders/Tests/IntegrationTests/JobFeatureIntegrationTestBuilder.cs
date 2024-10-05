@@ -10,45 +10,42 @@ using MediatR;
 
 public static class JobFeatureIntegrationTestBuilder
 {
-    public record Command(Feature Feature, string EntityPlural) : IRequest;
+    public record Command(Feature Feature, string EntityPlural, string DbContextName) : IRequest;
 
-    public class Handler : IRequestHandler<Command>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task Handle(Command request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.FeatureTestClassPath(_scaffoldingDirectoryStore.TestDirectory, 
+            var classPath = ClassPathHelper.FeatureTestClassPath(scaffoldingDirectoryStore.TestDirectory, 
                 $"{request.Feature.Name}Tests.cs", 
                 request.EntityPlural, 
-                _scaffoldingDirectoryStore.ProjectBaseName);
-            var fileText = GetFileText(classPath, request.Feature, request.EntityPlural);
-            _utilities.CreateFile(classPath, fileText);
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var fileText = GetFileText(classPath, request.Feature, request.EntityPlural, request.DbContextName);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
 
-        private string GetFileText(ClassPath classPath, Feature feature, string entityPlural)
+        private string GetFileText(ClassPath classPath, Feature feature, string entityPlural, string dbContextName)
         {
-            var featuresClassPath = ClassPathHelper.FeaturesClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var featuresClassPath = ClassPathHelper.FeaturesClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"",
                 entityPlural,
-                _scaffoldingDirectoryStore.ProjectBaseName);
-            var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"",
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var dbContextClassPath = ClassPathHelper.DbContextClassPath(scaffoldingDirectoryStore.SrcDirectory,
+                $"",
+                scaffoldingDirectoryStore.ProjectBaseName);
             
             return @$"namespace {classPath.ClassNamespace};
 
 using {featuresClassPath.ClassNamespace};
 using {servicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using Bogus;
 using Domain;
 using System.Threading.Tasks;
@@ -61,10 +58,10 @@ public class {classPath.ClassNameWithoutExt} : TestBase
         // Arrange
         var testingServiceScope = new {FileNames.TestingServiceScope()}();
         var user = Guid.NewGuid().ToString();
-        var uow = testingServiceScope.GetService<IUnitOfWork>();
+        var dbContextName = testingServiceScope.GetService<{dbContextName}>();
 
         // Act
-        var job = new {feature.Name}(uow);
+        var job = new {feature.Name}(dbContextName);
         var command = new {feature.Name}.Command() {{ User = user }};
         await job.Handle(command, CancellationToken.None);
 

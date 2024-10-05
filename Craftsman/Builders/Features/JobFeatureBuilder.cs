@@ -8,39 +8,35 @@ using MediatR;
 
 public static class JobFeatureBuilder
 {
-    public record Command(Feature Feature, string EntityPlural) : IRequest;
+    public record Command(Feature Feature, string EntityPlural, string DbContextName) : IRequest;
 
-    public class Handler : IRequestHandler<Command>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task Handle(Command request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.FeaturesClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var classPath = ClassPathHelper.FeaturesClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"{request.Feature.Name}.cs",
                 request.EntityPlural,
-                _scaffoldingDirectoryStore.ProjectBaseName);
-            var fileText = GetFileText(classPath.ClassNamespace, request.Feature);
-            _utilities.CreateFile(classPath, fileText);
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var fileText = GetFileText(classPath.ClassNamespace, request.Feature, request.DbContextName);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
 
-        private string GetFileText(string classNamespace, Feature feature)
+        private string GetFileText(string classNamespace, Feature feature, string dbContextName)
         {
-            var hangfireUtilsClassPath = ClassPathHelper.HangfireResourcesClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var hangfireUtilsClassPath = ClassPathHelper.HangfireResourcesClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"",
-                _scaffoldingDirectoryStore.ProjectBaseName);
-            var servicesUtilsClassPath = ClassPathHelper.WebApiServicesClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var servicesUtilsClassPath = ClassPathHelper.WebApiServicesClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"",
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
+            var dbContextClassPath = ClassPathHelper.DbContextClassPath(scaffoldingDirectoryStore.SrcDirectory, 
+                "", 
+                scaffoldingDirectoryStore.ProjectBaseName);
             
             return @$"namespace {classNamespace};
 
@@ -48,16 +44,10 @@ using Hangfire;
 using HeimGuard;
 using {hangfireUtilsClassPath.ClassNamespace};
 using {servicesUtilsClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 
-public class {feature.Name}
-{{
-    private readonly IUnitOfWork _unitOfWork;
-
-    public {feature.Name}(IUnitOfWork unitOfWork)
-    {{
-        _unitOfWork = unitOfWork;
-    }}
-    
+public class {feature.Name}({dbContextName} dbContext)
+{{    
     public sealed class Command : IJobWithUserContext
     {{
         public string User {{ get; set; }}
@@ -70,7 +60,7 @@ public class {feature.Name}
     public async Task Handle(Command command, CancellationToken cancellationToken)
     {{
         // TODO some work here
-        await _unitOfWork.CommitChanges(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }}
 }}";
         }

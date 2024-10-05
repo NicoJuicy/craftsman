@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Consolidated options pattern object and cleaned it up
 * Remove functional tests scaffolding (other than health)
 * Tweak producer example
+* No more repository/uow abstraction
+* No more unit tests for user policy handler
 
 ### Fixed
 

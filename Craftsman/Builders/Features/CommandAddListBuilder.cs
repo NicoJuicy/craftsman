@@ -15,14 +15,14 @@ public class CommandAddListBuilder
         _utilities = utilities;
     }
 
-    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, Feature feature, bool isProtected, string permissionName)
+    public void CreateCommand(string srcDirectory, Entity entity, string projectBaseName, Feature feature, bool isProtected, string permissionName, string dbContextName)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{feature.Name}.cs", entity.Plural, projectBaseName);
-        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, feature, projectBaseName, isProtected, permissionName);
+        var fileText = GetCommandFileText(classPath.ClassNamespace, entity, srcDirectory, feature, projectBaseName, isProtected, permissionName, dbContextName);
         _utilities.CreateFile(classPath, fileText);
     }
 
-    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, Feature feature, string projectBaseName, bool isProtected, string permissionName)
+    public static string GetCommandFileText(string classNamespace, Entity entity, string srcDirectory, Feature feature, string projectBaseName, bool isProtected, string permissionName, string dbContextName)
     {
         var className = feature.Name;
         var readDto = FileNames.GetDtoName(entity.Name, Dto.Read);
@@ -39,18 +39,13 @@ public class CommandAddListBuilder
         var commandProp = $"{entityName}ListToAdd";
         var newEntityProp = $"{entityNameLowercaseListVar}ListToAdd";
         var repoInterface = FileNames.EntityRepositoryInterface(entityName);
-        var repoInterfaceProp = $"{entityName.LowercaseFirstLetter()}Repository";
-        var repoInterfaceBatchFk = FileNames.EntityRepositoryInterface(feature.ParentEntity);
-        var repoInterfacePropBatchFk = $"{feature.ParentEntity.LowercaseFirstLetter()}Repository";
         var modelToCreateVariableName = $"{entityName.LowercaseFirstLetter()}ToAdd";
 
         var entityClassPath = ClassPathHelper.EntityClassPath(srcDirectory, "", entity.Plural, projectBaseName);
         var dtoClassPath = ClassPathHelper.DtoClassPath(srcDirectory, "", entity.Plural, projectBaseName);
-        var entityServicesClassPath = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", entity.Plural, projectBaseName);
-        var entityServicesClassPathBatchFk = ClassPathHelper.EntityServicesClassPath(srcDirectory, "", feature.ParentEntityPlural, projectBaseName);
-        var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var exceptionsClassPath = ClassPathHelper.ExceptionsClassPath(srcDirectory, "", projectBaseName);
         var modelClassPath = ClassPathHelper.EntityModelClassPath(srcDirectory, entity.Name, entity.Plural, null, projectBaseName);
+        var dbContextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
         
         FeatureBuilderHelpers.GetPermissionValuesForHandlers(srcDirectory, 
             projectBaseName, 
@@ -62,19 +57,12 @@ public class CommandAddListBuilder
 
         var batchFkCheck = !string.IsNullOrEmpty(feature.BatchPropertyName)
             ? @$"
-            var {parentEntityNameLowercaseFirst} = await {repoInterfacePropBatchFk}.GetById(command.{feature.BatchPropertyName}, cancellationToken: cancellationToken);{Environment.NewLine}{Environment.NewLine}            "
-            : "";
-        var batchFkUsingRepo =  !string.IsNullOrEmpty(feature.BatchPropertyName)
-            ? @$"{Environment.NewLine}using {entityServicesClassPathBatchFk.ClassNamespace};"
-            : "";
-        var batchFkDiProp =  !string.IsNullOrEmpty(feature.BatchPropertyName)
-            ? @$", {repoInterfaceBatchFk} {repoInterfacePropBatchFk}"
+            var {parentEntityNameLowercaseFirst} = await dbContext.{feature.ParentEntityPlural}.GetById(command.{feature.BatchPropertyName}, cancellationToken);{Environment.NewLine}{Environment.NewLine}            "
             : "";
 
         return @$"namespace {classNamespace};
 
-using {entityServicesClassPath.ClassNamespace};{batchFkUsingRepo}
-using {servicesClassPath.ClassNamespace};
+using {dbContextClassPath.ClassNamespace};
 using {entityClassPath.ClassNamespace};
 using {dtoClassPath.ClassNamespace};
 using {modelClassPath.ClassNamespace};
@@ -86,12 +74,11 @@ public static class {className}
 {{
     public sealed record Command({createDto} {commandProp}, {feature.BatchPropertyType} {feature.BatchPropertyName}) : IRequest<{readDtoAsList}>;
 
-    public sealed class Handler({repoInterface} {repoInterfaceProp}, IUnitOfWork unitOfWork{batchFkDiProp}{heimGuardCtor})
+    public sealed class Handler({dbContextName} dbContext{heimGuardCtor})
         : IRequestHandler<Command, {readDtoAsList}>
     {{
         public async Task<{readDtoAsList}> Handle(Command command, CancellationToken cancellationToken)
-        {{{permissionCheck}
-            {batchFkCheck}var {entityNameLowercaseListVar}ToAdd = command.{commandProp}.ToList();
+        {{{permissionCheck}{batchFkCheck}var {entityNameLowercaseListVar}ToAdd = command.{commandProp}.ToList();
             var {entityNameLowercaseListVar} = new List<{entityName}>();
             foreach (var {entityNameLowercase} in {entityNameLowercaseListVar}ToAdd)
             {{
@@ -104,8 +91,8 @@ public static class {className}
             // if you have large datasets to add in bulk and have performance concerns, there 
             // are additional methods that could be leveraged in your repository instead (e.g. SqlBulkCopy)
             // https://timdeschryver.dev/blog/faster-sql-bulk-inserts-with-csharp#table-valued-parameter 
-            await {repoInterfaceProp}.AddRange({entityNameLowercaseListVar}, cancellationToken);
-            await unitOfWork.CommitChanges(cancellationToken);
+            await dbContext.{entity.Plural}.AddRangeAsync({entityNameLowercaseListVar}, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return {entityNameLowercaseListVar}
                 .Select({entity.Lambda} => {entity.Lambda}.To{readDto}())

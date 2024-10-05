@@ -5,29 +5,20 @@ using Domain;
 using Helpers;
 using Services;
 
-public class ConsumerBuilder
+public class ConsumerBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ConsumerBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateConsumerFeature(string solutionDirectory, string srcDirectory, Consumer consumer, string projectBaseName)
     {
         var classPath = ClassPathHelper.ConsumerFeaturesClassPath(srcDirectory, $"{consumer.ConsumerName}.cs", consumer.DomainDirectory, projectBaseName);
         var fileText = GetDirectOrTopicConsumerRegistration(classPath.ClassNamespace, consumer, solutionDirectory, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public string GetDirectOrTopicConsumerRegistration(string classNamespace, Consumer consumer, string solutionDirectory, string srcDirectory, string projectBaseName)
     {
-        var context = _utilities.GetDbContext(srcDirectory, projectBaseName);
+        var context = utilities.GetDbContext(srcDirectory, projectBaseName);
         var contextClassPath = ClassPathHelper.DbContextClassPath(srcDirectory, "", projectBaseName);
-        var dbReadOnly = consumer.UsesDb ? @$"{Environment.NewLine}    private readonly {context} _db;" : "";
-        var dbProp = consumer.UsesDb ? @$"{context} db" : "";
-        var assignDb = consumer.UsesDb ? @$"{Environment.NewLine}        _db = db;" : "";
+        var dbProp = consumer.UsesDb ? @$"{context} dbContext" : "";
         var contextUsing = consumer.UsesDb ? $@"
 using {contextClassPath.ClassNamespace};" : "";
 
@@ -38,13 +29,8 @@ using MassTransit;
 using {messagesClassPath.ClassNamespace};
 using System.Threading.Tasks;{contextUsing}
 
-public sealed class {consumer.ConsumerName} : IConsumer<{FileNames.MessageInterfaceName(consumer.MessageName)}>
-{{{dbReadOnly}
-
-    public {consumer.ConsumerName}({dbProp})
-    {{{assignDb}
-    }}
-
+public sealed class {consumer.ConsumerName}({dbProp}) : IConsumer<{FileNames.MessageInterfaceName(consumer.MessageName)}>
+{{
     public Task Consume(ConsumeContext<{FileNames.MessageInterfaceName(consumer.MessageName)}> context)
     {{
         // do work here
