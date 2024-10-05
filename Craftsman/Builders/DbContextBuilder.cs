@@ -20,17 +20,18 @@ public class DbContextBuilder(ICraftsmanUtilities utilities, IFileSystem fileSys
         string localDbConnection,
         NamingConventionEnum namingConventionEnum,
         bool useSoftDelete,
-        string projectBaseName
+        string projectBaseName,
+        bool usesAuth
     )
     {
         var classPath = ClassPathHelper.DbContextClassPath(srcDirectory, $"{dbContextName}.cs", projectBaseName);
-        var data = GetContextFileText(classPath.ClassNamespace, entities, dbContextName, srcDirectory, useSoftDelete, projectBaseName);
+        var data = GetContextFileText(classPath.ClassNamespace, entities, dbContextName, srcDirectory, useSoftDelete, projectBaseName, usesAuth);
         utilities.CreateFile(classPath, data);
 
         RegisterContext(srcDirectory, dbProvider, dbContextName, dbName, localDbConnection, namingConventionEnum, projectBaseName);
     }
 
-    public static string GetContextFileText(string classNamespace, List<Entity> entities, string dbContextName, string srcDirectory, bool useSoftDelete, string projectBaseName)
+    public static string GetContextFileText(string classNamespace, List<Entity> entities, string dbContextName, string srcDirectory, bool useSoftDelete, string projectBaseName, bool usesAuth)
     {
         var servicesClassPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "", projectBaseName);
         var baseEntityClassPath = ClassPathHelper.EntityClassPath(srcDirectory, $"", "", projectBaseName);
@@ -144,15 +145,15 @@ public sealed class {dbContextName}(DbContextOptions<{dbContextName}> options,
 }}{extensions}";
     }
 
-    private static string DContextExtensionClasses(string dbContextName, bool useSoftDelete)
+    private static string DContextExtensionClasses(string dbContextName, bool useSoftDelete, bool usesAuth)
     {
-        var userAggregate= $$"""
-                             public static IQueryable<User> GetUserAggregate(this {{dbContextName}} dbContext)
-                             {
-                                 return dbContext.Users
-                                     .Include(u => u.Roles);
-                             }
-                             """;
+        var userAggregate= usesAuth ? $$"""
+                                     public static IQueryable<User> GetUserAggregate(this {{dbContextName}} dbContext)
+                                     {
+                                         return dbContext.Users
+                                             .Include(u => u.Roles);
+                                     }
+                                     """ : "";
         var softDelete = useSoftDelete ?
 """
 
@@ -224,7 +225,8 @@ public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
                  """;
     }
 
-    private void RegisterContext(string srcDirectory, DbProvider dbProvider, string dbContextName, string dbName, string localDbConnection, NamingConventionEnum namingConventionEnum, string projectBaseName)
+    private void RegisterContext(string srcDirectory, DbProvider dbProvider, string dbContextName, string dbName, 
+        string localDbConnection, NamingConventionEnum namingConventionEnum, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiServiceExtensionsClassPath(srcDirectory, $"{FileNames.GetInfraRegistrationName()}.cs", projectBaseName);
 

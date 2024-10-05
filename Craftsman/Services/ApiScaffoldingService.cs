@@ -104,7 +104,8 @@ public class ApiScaffoldingService
             template.DockerConfig.DbConnectionString,
             template.DbContext.NamingConventionEnum,
             template.UseSoftDelete,
-            projectBaseName
+            projectBaseName,
+            template.AddJwtAuthentication
         );
         new ApiRoutesBuilder(_utilities).CreateClass(testDirectory, projectBaseName);
         _mediator.Send(new DbMigrationsHostedServiceBuilder.Command(template.DbContext.ProviderEnum));
