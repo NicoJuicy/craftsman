@@ -293,10 +293,10 @@ BoundedContexts:
   Bus:
     AddBus: true
   Producers:
-  - EndpointRegistrationMethodName: AddRecipeProducerEndpoint
-    ProducerName: AddRecipeProducer
-    ExchangeName: recipe-added
-    MessageName: RecipeAdded
+  - EndpointRegistrationMethodName: ImportRecipeEndpoint
+    ProducerName: ImportRecipeProducer
+    ExchangeName: import-recipe
+    MessageName: ImportRecipe
     DomainDirectory: Recipes
     ExchangeType: fanout
     UsesDb: true
@@ -309,7 +309,7 @@ BoundedContexts:
     DomainDirectory: Recipes
     ExchangeType: fanout
 Messages:
-- Name: RecipeAdded
+- Name: ImportRecipe
   Properties:
   - Name: RecipeId
     Type: guid

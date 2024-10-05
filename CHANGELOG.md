@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Queries use DbContext directly with new ext methods
 * Consolidated options pattern object and cleaned it up
 * Remove functional tests scaffolding (other than health)
+* Tweak producer example
 
 ### Fixed
 
