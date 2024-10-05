@@ -52,11 +52,9 @@ public class DbContextBuilder
                     entry.Entity.UpdateModifiedProperties(now, currentUserService?.UserId);
                     entry.Entity.UpdateIsDeleted(true);"
             : "";
-        var softDeleteFilterClass = useSoftDelete
-            ? $@"
+        var extensions = $@"
 
-{SoftDeleteFilterClass()}"
-            : "";
+{DContextExtensionClasses(useSoftDelete)}";
 
         var modelBuilderFilter = useSoftDelete
             ? $@"
@@ -152,33 +150,37 @@ public sealed class {dbContextName}(DbContextOptions<{dbContextName}> options,
             }}
         }}
     }}
-}}{softDeleteFilterClass}";
+}}{extensions}";
     }
 
-    private static string SoftDeleteFilterClass()
+    private static string DContextExtensionClasses(bool useSoftDelete)
     {
+        var softDelete = useSoftDelete ?
+"""
+
+public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
+{
+    Expression<Func<BaseEntity, bool>> filterExpr = e => !e.IsDeleted;
+    foreach (var mutableEntityType in modelBuilder.Model.GetEntityTypes()
+        .Where(m => m.ClrType.IsAssignableTo(typeof(BaseEntity))))
+    {
+        // modify expression to handle correct child type
+        var parameter = Expression.Parameter(mutableEntityType.ClrType);
+        var body = ReplacingExpressionVisitor
+            .Replace(filterExpr.Parameters.First(), parameter, filterExpr.Body);
+        var lambdaExpression = Expression.Lambda(body, parameter);
+
+        // set filter
+        mutableEntityType.SetQueryFilter(lambdaExpression);
+    }
+}
+
+""" : "";
         return 
             /* language=c# */
             $$"""
                  public static class Extensions
-                 {
-                     public static void FilterSoftDeletedRecords(this ModelBuilder modelBuilder)
-                     {
-                         Expression<Func<BaseEntity, bool>> filterExpr = e => !e.IsDeleted;
-                         foreach (var mutableEntityType in modelBuilder.Model.GetEntityTypes()
-                             .Where(m => m.ClrType.IsAssignableTo(typeof(BaseEntity))))
-                         {
-                             // modify expression to handle correct child type
-                             var parameter = Expression.Parameter(mutableEntityType.ClrType);
-                             var body = ReplacingExpressionVisitor
-                                 .Replace(filterExpr.Parameters.First(), parameter, filterExpr.Body);
-                             var lambdaExpression = Expression.Lambda(body, parameter);
-                 
-                             // set filter
-                             mutableEntityType.SetQueryFilter(lambdaExpression);
-                         }
-                     }
-                 
+                 {{{softDelete}}
                      public static async Task<TEntity> GetByIdOrDefault<TEntity>(this DbSet<TEntity> dbSet, 
                          Guid id, 
                          CancellationToken cancellationToken = default) 
