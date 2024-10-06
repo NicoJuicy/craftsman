@@ -46,7 +46,7 @@ public class DbContextBuilder(ICraftsmanUtilities utilities, IFileSystem fileSys
             : "";
         var extensions = $@"
 
-{DContextExtensionClasses(dbContextName, useSoftDelete)}";
+{DContextExtensionClasses(dbContextName, useSoftDelete, usesAuth)}";
 
         var modelBuilderFilter = useSoftDelete
             ? $@"
