@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+* None yet!
+
+## [0.27.0] - 10/06/2024
+
 ### Updated
 
 * New extension methods on dbcontext for direct `GetById` options
