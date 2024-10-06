@@ -126,6 +126,9 @@ public class {classPath.ClassNameWithoutExt} : TestBase
     
     private static string GetPermissionTest(string featureName, string permission)
     {
+        if(string.IsNullOrWhiteSpace(permission))
+            return null;
+        
         var queryName = FileNames.QueryListName();
         
         return $@"
