@@ -5,15 +5,8 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class ConsumerRegistrationBuilder
+public class ConsumerRegistrationBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ConsumerRegistrationBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateConsumerRegistration(string solutionDirectory, Consumer consumer, string projectBaseName)
     {
         var className = $@"{consumer.EndpointRegistrationMethodName}Registration";
@@ -40,7 +33,7 @@ public class ConsumerRegistrationBuilder
         else
             data = GetFanoutConsumerRegistration(classPath.ClassNamespace, className, consumer, lazyText, quorumText, consumerFeatureClassPath.ClassNamespace);
 
-        _utilities.CreateFile(classPath, data);
+        utilities.CreateFile(classPath, data);
     }
 
     public static string GetDirectOrTopicConsumerRegistration(string classNamespace, string className, Consumer consumer, string lazyText, string quorumText, string consumerFeatureUsing)

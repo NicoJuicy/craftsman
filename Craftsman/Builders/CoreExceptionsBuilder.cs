@@ -11,33 +11,24 @@ public static class CoreExceptionBuilder
     {
     }
 
-    public class Handler : IRequestHandler<CoreExceptionBuilderCommand, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IFileSystem fileSystem,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<CoreExceptionBuilderCommand, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IFileSystem _fileSystem;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IFileSystem fileSystem,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _fileSystem = fileSystem;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(CoreExceptionBuilderCommand request, CancellationToken cancellationToken)
         {
-            CreateExceptions(_scaffoldingDirectoryStore.SolutionDirectory);
+            CreateExceptions();
             return Task.FromResult(true);
         }
 
-        public void CreateExceptions(string solutionDirectory)
+        public void CreateExceptions()
         {
-            var classPath = ClassPathHelper.ExceptionsClassPath(_scaffoldingDirectoryStore.SrcDirectory, "", _scaffoldingDirectoryStore.ProjectBaseName);
+            var classPath = ClassPathHelper.ExceptionsClassPath(scaffoldingDirectoryStore.SrcDirectory, "", scaffoldingDirectoryStore.ProjectBaseName);
 
-            if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-                _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+            if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+                fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
             CreateNotFoundException();
             CreateValidationException();
@@ -47,38 +38,38 @@ public static class CoreExceptionBuilder
 
         public void CreateValidationException()
         {
-            var classPath = ClassPathHelper.ExceptionsClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.ExceptionsClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"ValidationException.cs", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetValidationExceptionFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
         }
 
         public void CreateNotFoundException()
         {
-            var classPath = ClassPathHelper.ExceptionsClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.ExceptionsClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"NotFoundException.cs", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetNotFoundExceptionFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
         }
 
         public void CreateForbiddenException()
         {
-            var classPath = ClassPathHelper.ExceptionsClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.ExceptionsClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"ForbiddenException.cs", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetForbiddenExceptionFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
         }
 
         public void CreateNoRolesAssignedException()
         {
-            var classPath = ClassPathHelper.ExceptionsClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.ExceptionsClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"NoRolesAssignedException.cs", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetNoRolesAssignedExceptionFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
         }
 
         public static string GetNotFoundExceptionFileText(string classNamespace)

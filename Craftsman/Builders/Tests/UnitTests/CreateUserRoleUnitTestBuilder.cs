@@ -5,22 +5,15 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class CreateUserRoleUnitTestBuilder
+public class CreateUserRoleUnitTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public CreateUserRoleUnitTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string solutionDirectory, string testDirectory, string srcDirectory, string projectBaseName)
     {
         var entityName = "User";
         var entityPlural = "Users";
         var classPath = ClassPathHelper.UnitTestEntityTestsClassPath(testDirectory, $"CreateUserRoleTests.cs", entityPlural, projectBaseName);
         var fileText = WriteTestFileText(solutionDirectory, srcDirectory, classPath, entityName, entityPlural, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string solutionDirectory, string srcDirectory, ClassPath classPath, string entityName, string entityPlural, string projectBaseName)

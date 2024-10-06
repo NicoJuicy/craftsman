@@ -4,27 +4,20 @@ using System.IO;
 using Helpers;
 using Services;
 
-public class UserUnitTestBuilder
+public class UserUnitTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public UserUnitTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string solutionDirectory, string testDirectory, string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestEntityTestsClassPath(testDirectory, $"CreateUserTests.cs", "Users", projectBaseName);
         var fileText = CreateFileText(solutionDirectory, srcDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public void UpdateTests(string solutionDirectory, string testDirectory, string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestEntityTestsClassPath(testDirectory, $"UpdateUserTests.cs", "Users", projectBaseName);
         var fileText = UpdateFileText(solutionDirectory, srcDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string CreateFileText(string solutionDirectory, string srcDirectory, ClassPath classPath, string projectBaseName)

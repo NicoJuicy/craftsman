@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class ReadmeBuilder
+public class ReadmeBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ReadmeBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateReadme(string solutionDirectory, string domainName)
     {
         var classPath = ClassPathHelper.SolutionClassPath(solutionDirectory, $"README.md");
         var fileText = GetReadmeFileText(domainName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetReadmeFileText(string domainName)

@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class IntegrationTestBaseBuilder
+public class IntegrationTestBaseBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public IntegrationTestBaseBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateBase(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.IntegrationTestProjectRootClassPath(solutionDirectory, "TestBase.cs", projectBaseName);
         var fileText = GetBaseText(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetBaseText(string classNamespace)

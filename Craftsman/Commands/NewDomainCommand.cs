@@ -10,38 +10,18 @@ using Services;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-public class NewDomainCommand : Command<NewDomainCommand.Settings>
+public class NewDomainCommand(
+    IAnsiConsole console,
+    IFileSystem fileSystem,
+    IConsoleWriter consoleWriter,
+    ICraftsmanUtilities utilities,
+    IScaffoldingDirectoryStore scaffoldingDirectoryStore,
+    IDbMigrator dbMigrator,
+    IGitService gitService,
+    IFileParsingHelper fileParsingHelper,
+    IMediator mediator)
+    : Command<NewDomainCommand.Settings>
 {
-    private readonly IAnsiConsole _console;
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-    private readonly IDbMigrator _dbMigrator;
-    private readonly IGitService _gitService;
-    private readonly IFileParsingHelper _fileParsingHelper;
-    private readonly IMediator _mediator;
-
-    public NewDomainCommand(IAnsiConsole console,
-        IFileSystem fileSystem,
-        IConsoleWriter consoleWriter,
-        ICraftsmanUtilities utilities,
-        IScaffoldingDirectoryStore scaffoldingDirectoryStore,
-        IDbMigrator dbMigrator,
-        IGitService gitService,
-        IFileParsingHelper fileParsingHelper, IMediator mediator)
-    {
-        _console = console;
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-        _utilities = utilities;
-        _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        _dbMigrator = dbMigrator;
-        _gitService = gitService;
-        _fileParsingHelper = fileParsingHelper;
-        _mediator = mediator;
-    }
-
     public class Settings : CommandSettings
     {
         [CommandArgument(0, "<Filepath>")]
@@ -50,33 +30,33 @@ public class NewDomainCommand : Command<NewDomainCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
-        var rootDir = _utilities.GetRootDir();
+        var rootDir = utilities.GetRootDir();
 
         // TODO make injectable
-        _fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
-        var domainProject = _fileParsingHelper.GetTemplateFromFile<DomainProject>(settings.Filepath);
-        _consoleWriter.WriteLogMessage($"Your template file was parsed successfully");
+        fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
+        var domainProject = fileParsingHelper.GetTemplateFromFile<DomainProject>(settings.Filepath);
+        consoleWriter.WriteLogMessage($"Your template file was parsed successfully");
 
-        _scaffoldingDirectoryStore.SetSolutionDirectory(rootDir, domainProject.DomainName);
+        scaffoldingDirectoryStore.SetSolutionDirectory(rootDir, domainProject.DomainName);
         CreateNewDomainProject(domainProject);
 
-        _console.MarkupLine($"{Environment.NewLine}[bold yellow1]Your domain project is ready! Build something amazing. [/]");
+        console.MarkupLine($"{Environment.NewLine}[bold yellow1]Your domain project is ready! Build something amazing. [/]");
 
-        _consoleWriter.StarGithubRequest();
+        consoleWriter.StarGithubRequest();
         return 0;
     }
 
     public void CreateNewDomainProject(DomainProject domainProject)
     {
-        var solutionDirectory = _scaffoldingDirectoryStore.SolutionDirectory;
-        _fileSystem.Directory.CreateDirectory(solutionDirectory);
-        new SolutionBuilder(_utilities, _fileSystem, _mediator).BuildSolution(solutionDirectory, domainProject.DomainName);
+        var solutionDirectory = scaffoldingDirectoryStore.SolutionDirectory;
+        fileSystem.Directory.CreateDirectory(solutionDirectory);
+        new SolutionBuilder(utilities, fileSystem, mediator).BuildSolution(solutionDirectory, domainProject.DomainName);
 
         // need this before boundaries to give them something to build against
-        new DockerComposeBuilders(_utilities, _fileSystem).CreateDockerComposeSkeleton(solutionDirectory);
+        new DockerComposeBuilders(utilities, fileSystem).CreateDockerComposeSkeleton(solutionDirectory);
 
         var otelAgentPort = CraftsmanUtilities.GetFreePort();
-        new DockerComposeBuilders(_utilities, _fileSystem).AddJaegerToDockerCompose(solutionDirectory, otelAgentPort);
+        new DockerComposeBuilders(utilities, fileSystem).AddJaegerToDockerCompose(solutionDirectory, otelAgentPort);
         // DockerBuilders.CreateDockerComposeDbSkeleton(solutionDirectory);
 
         //Parallel.ForEach(domainProject.BoundedContexts, (template) =>
@@ -84,33 +64,33 @@ public class NewDomainCommand : Command<NewDomainCommand.Settings>
         foreach (var bc in domainProject.BoundedContexts)
         {
             bc.DockerConfig.OTelAgentPort = otelAgentPort;
-            new ApiScaffoldingService(_console, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _fileSystem, _mediator, _fileParsingHelper)
+            new ApiScaffoldingService(console, consoleWriter, utilities, scaffoldingDirectoryStore, fileSystem, mediator, fileParsingHelper)
                 .ScaffoldApi(solutionDirectory, bc);
         }
 
         // auth server
         if (domainProject.AuthServer != null)
-            new AddAuthServerCommand(_fileSystem, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _fileParsingHelper, _mediator, _console)
+            new AddAuthServerCommand(fileSystem, consoleWriter, utilities, scaffoldingDirectoryStore, fileParsingHelper, mediator, console)
                 .AddAuthServer(solutionDirectory, domainProject.AuthServer);
 
         // messages
         if (domainProject.Messages.Count > 0)
-            new AddMessageCommand(_fileSystem, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _console, _fileParsingHelper)
+            new AddMessageCommand(fileSystem, consoleWriter, utilities, scaffoldingDirectoryStore, console, fileParsingHelper)
                 .AddMessages(solutionDirectory, domainProject.Messages);
 
         // migrations
-        _dbMigrator.RunDbMigrations(domainProject.BoundedContexts, solutionDirectory);
+        dbMigrator.RunDbMigrations(domainProject.BoundedContexts, solutionDirectory);
 
         // github
         if (domainProject.IncludeDependabot)
         {
-            new GithubDependabotBuilder(_utilities).CreateFile(solutionDirectory);
+            new GithubDependabotBuilder(utilities).CreateFile(solutionDirectory);
         }
         
         //final
-        new ReadmeBuilder(_utilities).CreateReadme(solutionDirectory, domainProject.DomainName);
+        new ReadmeBuilder(utilities).CreateReadme(solutionDirectory, domainProject.DomainName);
 
         if (domainProject.AddGit)
-            _gitService.GitSetup(solutionDirectory, domainProject.UseSystemGitUser);
+            gitService.GitSetup(solutionDirectory, domainProject.UseSystemGitUser);
     }
 }

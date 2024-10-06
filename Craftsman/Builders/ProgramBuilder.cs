@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class ProgramBuilder
+public class ProgramBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ProgramBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateWebApiProgram(string srcDirectory, bool useJwtAuth, string projectBaseName, bool useCustomErrorHandler)
     {
         var classPath = ClassPathHelper.WebApiProjectRootClassPath(srcDirectory, $"Program.cs", projectBaseName);
         var fileText = GetWebApiProgramText(srcDirectory, useJwtAuth, projectBaseName, useCustomErrorHandler);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetWebApiProgramText(string srcDirectory, bool useJwtAuth, string projectBaseName, bool useCustomErrorHandler)

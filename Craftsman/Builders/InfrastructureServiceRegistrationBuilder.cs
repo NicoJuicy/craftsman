@@ -3,19 +3,13 @@
 using Helpers;
 using Services;
 
-public class InfrastructureServiceRegistrationBuilder
+public class InfrastructureServiceRegistrationBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public InfrastructureServiceRegistrationBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
     public void CreateInfrastructureServiceExtension(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiServiceExtensionsClassPath(srcDirectory, $"{FileNames.GetInfraRegistrationName()}.cs", projectBaseName);
         var fileText = GetServiceRegistrationText(srcDirectory, projectBaseName, classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetServiceRegistrationText(string srcDirectory, string projectBaseName, string classNamespace)

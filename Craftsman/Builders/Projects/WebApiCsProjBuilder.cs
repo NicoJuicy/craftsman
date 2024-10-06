@@ -4,19 +4,12 @@ using Domain;
 using Helpers;
 using Services;
 
-public class WebApiCsProjBuilder
+public class WebApiCsProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public WebApiCsProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateWebApiCsProj(string solutionDirectory, string projectBaseName, DbProvider dbProvider, bool useCustomErrorHandler)
     {
         var classPath = ClassPathHelper.WebApiProjectClassPath(solutionDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, GetWebApiCsProjFileText(dbProvider, useCustomErrorHandler));
+        utilities.CreateFile(classPath, GetWebApiCsProjFileText(dbProvider, useCustomErrorHandler));
     }
 
     public static string GetWebApiCsProjFileText(DbProvider dbProvider, bool useCustomErrorHandler)

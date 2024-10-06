@@ -4,20 +4,13 @@ using System.IO;
 using Helpers;
 using Services;
 
-public class HealthTestBuilder
+public class HealthTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public HealthTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.FunctionalTestClassPath(solutionDirectory, $"HealthCheckTests.cs", "HealthChecks", projectBaseName);
         var fileText = WriteTestFileText(solutionDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string solutionDirectory, ClassPath classPath, string projectBaseName)

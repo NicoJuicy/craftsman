@@ -3,21 +3,14 @@
 using Helpers;
 using Services;
 
-public class EditorConfigBuilder
+public class EditorConfigBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public EditorConfigBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateEditorConfig(string srcDirectory, string projectBaseName)
     {
         var appSettingFilename = FileNames.GetAppSettingsName();
         var classPath = ClassPathHelper.WebApiEditorConfigClassPath(srcDirectory, projectBaseName);
         var fileText = FetFileText();
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string FetFileText()

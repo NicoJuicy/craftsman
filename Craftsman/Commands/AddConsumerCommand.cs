@@ -74,7 +74,7 @@ public class AddConsumerCommand : Command<AddConsumerCommand.Settings>
         {
             new ConsumerBuilder(_utilities).CreateConsumerFeature(solutionDirectory, srcDirectory, consumer, projectBaseName);
             new ConsumerRegistrationBuilder(_utilities).CreateConsumerRegistration(srcDirectory, consumer, projectBaseName);
-            new MassTransitModifier(_fileSystem).AddConsumerRegistation(srcDirectory, consumer.EndpointRegistrationMethodName, projectBaseName);
+            new MassTransitModifier(_fileSystem).AddConsumerRegistration(srcDirectory, consumer.EndpointRegistrationMethodName, projectBaseName);
 
             new IntegrationTestFixtureModifier(_fileSystem, _consoleWriter).AddMasstransitConsumer(testDirectory, consumer.ConsumerName, consumer.DomainDirectory, projectBaseName, srcDirectory);
         });

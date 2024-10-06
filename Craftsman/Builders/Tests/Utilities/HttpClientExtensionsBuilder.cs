@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class HttpClientExtensionsBuilder
+public class HttpClientExtensionsBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public HttpClientExtensionsBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void Create(string solutionDirectory, string projectName)
     {
         var classPath = ClassPathHelper.FunctionalTestUtilitiesClassPath(solutionDirectory, projectName, $"HttpClientExtensions.cs");
         var fileText = CreateHttpClientExtensionsText(classPath);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string CreateHttpClientExtensionsText(ClassPath classPath)

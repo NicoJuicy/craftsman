@@ -184,7 +184,7 @@ public class ApiScaffoldingService
 
         //services
         _mediator.Send(new SharedTestUtilsBuilder.Command());
-        _mediator.Send(new IBoundaryServiceInterfaceBuilder.IBoundaryServiceInterfaceBuilderCommand());
+        _mediator.Send(new IBoundaryServiceInterfaceBuilder.BoundaryServiceInterfaceBuilderCommand());
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Functional));
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Integration));
         _mediator.Send(new TestUsingsBuilder.Command(TestUsingsBuilder.TestingTarget.Unit));
@@ -198,7 +198,7 @@ public class ApiScaffoldingService
         new SwaggerBuilder(_utilities, _fileSystem).AddSwagger(srcDirectory, template.SwaggerConfig, template.ProjectName, template.AddJwtAuthentication, template?.Environment?.AuthSettings?.Audience, projectBaseName);
 
         if (template.Bus.AddBus)
-            new AddBusCommand(_fileSystem, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _console, _fileParsingHelper)
+            new AddBusCommand(_fileSystem, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _fileParsingHelper)
                 .AddBus(template.Bus, srcDirectory, testDirectory, projectBaseName, solutionDirectory);
 
         if (template.Consumers.Count > 0)

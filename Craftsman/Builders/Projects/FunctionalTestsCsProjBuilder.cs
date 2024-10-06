@@ -4,19 +4,12 @@ using Domain;
 using Helpers;
 using Services;
 
-public class FunctionalTestsCsProjBuilder
+public class FunctionalTestsCsProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public FunctionalTestsCsProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTestsCsProj(string solutionDirectory, string projectBaseName, DbProvider provider)
     {
         var classPath = ClassPathHelper.FunctionalTestProjectClassPath(solutionDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName, provider));
+        utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName, provider));
     }
 
     public static string GetTestsCsProjFileText(string solutionDirectory, string projectBaseName, DbProvider provider)

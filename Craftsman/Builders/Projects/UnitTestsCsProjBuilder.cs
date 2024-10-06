@@ -3,19 +3,12 @@
 using Helpers;
 using Services;
 
-public class UnitTestsCsProjBuilder
+public class UnitTestsCsProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public UnitTestsCsProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTestsCsProj(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestProjectClassPath(solutionDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName));
+        utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName));
     }
 
     public static string GetTestsCsProjFileText(string solutionDirectory, string projectBaseName)

@@ -6,21 +6,14 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class PutCommandTestBuilder
+public class PutCommandTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public PutCommandTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string solutionDirectory, string testDirectory, string srcDirectory, Entity entity,
         string projectBaseName, bool featureIsProtected, string permission)
     {
         var classPath = ClassPathHelper.FeatureTestClassPath(testDirectory, $"Update{entity.Name}CommandTests.cs", entity.Plural, projectBaseName);
         var fileText = WriteTestFileText(solutionDirectory, testDirectory, srcDirectory, classPath, entity, projectBaseName, featureIsProtected, permission);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string solutionDirectory, string testDirectory, string srcDirectory,

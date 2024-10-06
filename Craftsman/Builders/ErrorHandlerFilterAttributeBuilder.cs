@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class ErrorHandlerFilterAttributeBuilder
+public class ErrorHandlerFilterAttributeBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ErrorHandlerFilterAttributeBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateErrorHandlerFilterAttribute(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiMiddlewareClassPath(srcDirectory, $"ErrorHandlerFilterAttribute.cs", projectBaseName);
         var fileText = GetErrorHandlerFilterAttributeText(srcDirectory, classPath.ClassNamespace, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetErrorHandlerFilterAttributeText(string srcDirectory, string classNamespace, string projectBaseName)

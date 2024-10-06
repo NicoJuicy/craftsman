@@ -6,20 +6,13 @@ using Craftsman.Domain.Enums;
 using Craftsman.Helpers;
 using Craftsman.Services;
 
-public class AddCommandTestBuilder
+public class AddCommandTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AddCommandTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, Entity entity, string projectBaseName)
     {
         var classPath = ClassPathHelper.FeatureTestClassPath(testDirectory, $"Add{entity.Name}CommandTests.cs", entity.Plural, projectBaseName);
         var fileText = WriteTestFileText(testDirectory, srcDirectory, classPath, entity, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string testDirectory, string srcDirectory, ClassPath classPath, Entity entity, string projectBaseName)

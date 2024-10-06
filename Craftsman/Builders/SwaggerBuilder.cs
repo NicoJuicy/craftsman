@@ -8,23 +8,14 @@ using Helpers;
 using Humanizer;
 using Services;
 
-public class SwaggerBuilder
+public class SwaggerBuilder(ICraftsmanUtilities utilities, IFileSystem fileSystem)
 {
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IFileSystem _fileSystem;
-
-    public SwaggerBuilder(ICraftsmanUtilities utilities, IFileSystem fileSystem)
-    {
-        _utilities = utilities;
-        _fileSystem = fileSystem;
-    }
-
     public void AddSwagger(string srcDirectory, SwaggerConfig swaggerConfig, string projectName, bool addJwtAuthentication, string audience, string projectBaseName)
     {
         if (swaggerConfig.Equals(new SwaggerConfig())) return;
 
         AddSwaggerServiceExtension(srcDirectory, projectBaseName, swaggerConfig, projectName, addJwtAuthentication, audience);
-        new WebApiAppExtensionsBuilder(_utilities).CreateSwaggerWebApiAppExtension(srcDirectory, swaggerConfig, addJwtAuthentication, projectBaseName);
+        new WebApiAppExtensionsBuilder(utilities).CreateSwaggerWebApiAppExtension(srcDirectory, swaggerConfig, addJwtAuthentication, projectBaseName);
         UpdateWebApiCsProjSwaggerSettings(srcDirectory, projectBaseName);
     }
 
@@ -32,7 +23,7 @@ public class SwaggerBuilder
     {
         var classPath = ClassPathHelper.WebApiServiceExtensionsClassPath(srcDirectory, $"{FileNames.GetSwaggerServiceExtensionName()}.cs", projectBaseName);
         var fileText = GetSwaggerServiceExtensionText(classPath.ClassNamespace, swaggerConfig, projectName, addJwtAuthentication, audience, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetSwaggerServiceExtensionText(string classNamespace, SwaggerConfig swaggerConfig, string projectName, bool addJwtAuthentication, string audience, string srcDirectory, string projectBaseName)
@@ -148,10 +139,10 @@ public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : 
     {
         var classPath = ClassPathHelper.WebApiProjectClassPath(solutionDirectory, projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
             throw new DirectoryNotFoundException($"The `{classPath.ClassDirectory}` directory could not be found.");
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
             throw new FileNotFoundException($"The `{classPath.FullClassPath}` file could not be found.");
 
         var tempPath = $"{classPath.FullClassPath}temp";
@@ -178,7 +169,7 @@ public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : 
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 }

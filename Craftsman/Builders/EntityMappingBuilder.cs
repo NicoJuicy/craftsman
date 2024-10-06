@@ -5,20 +5,13 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class EntityMappingBuilder
+public class EntityMappingBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public EntityMappingBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateMapping(string srcDirectory, string entityName, string entityPlural, string projectBaseName)
     {
         var classPath = ClassPathHelper.EntityMappingClassPath(srcDirectory, $"{FileNames.GetMappingName(entityName)}.cs", entityPlural, projectBaseName);
         var fileText = GetMappingFileText(classPath.ClassNamespace, entityName, entityPlural, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetMappingFileText(string classNamespace, string entityName, string entityPlural, string srcDirectory, string projectBaseName)

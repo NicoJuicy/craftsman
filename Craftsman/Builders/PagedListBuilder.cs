@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class PagedListBuilder
+public class PagedListBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public PagedListBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreatePagedList(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiResourcesClassPath(srcDirectory, $"PagedList.cs", projectBaseName);
         var fileText = GetPagedListText(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetPagedListText(string classNamespace)

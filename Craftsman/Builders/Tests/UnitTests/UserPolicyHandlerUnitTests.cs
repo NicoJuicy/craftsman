@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class UserPolicyHandlerUnitTests
+public class UserPolicyHandlerUnitTests(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public UserPolicyHandlerUnitTests(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestServiceTestsClassPath(testDirectory, "UserPolicyHandlerTests.cs", projectBaseName);
         var fileText = WriteTestFileText(srcDirectory, testDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string srcDirectory, string testDirectory, ClassPath classPath, string projectBaseName)

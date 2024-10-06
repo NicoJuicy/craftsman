@@ -4,20 +4,13 @@ using System.IO;
 using Helpers;
 using Services;
 
-public class AllEndpointsProtectedUnitTestBuilder
+public class AllEndpointsProtectedUnitTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AllEndpointsProtectedUnitTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestArchTestsClassPath(testDirectory, $"EndpointTests.cs", projectBaseName);
         var fileText = WriteTestFileText(classPath);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(ClassPath classPath)

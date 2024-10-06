@@ -7,35 +7,23 @@ using Services;
 
 public static class DbMigrationsHostedServiceBuilder
 {
-    public class Command : IRequest<bool>
+    public class Command(DbProvider dbProvider) : IRequest<bool>
     {
-        public readonly DbProvider DbProvider;
-
-        public Command(DbProvider dbProvider)
-        {
-            DbProvider = dbProvider;
-        }
+        public readonly DbProvider DbProvider = dbProvider;
     }
 
-    public class Handler : IRequestHandler<Command, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(Command request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.DbContextClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.DbContextClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"{FileNames.GetMigrationHostedServiceFileName()}.cs",
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace, request.DbProvider);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
         private string GetFileText(string classNamespace, DbProvider dbProvider)

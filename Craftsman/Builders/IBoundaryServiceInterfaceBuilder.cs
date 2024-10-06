@@ -6,37 +6,30 @@ using Services;
 
 public static class IBoundaryServiceInterfaceBuilder
 {
-    public class IBoundaryServiceInterfaceBuilderCommand : IRequest<bool>
+    public class BoundaryServiceInterfaceBuilderCommand : IRequest<bool>
     {
-        public IBoundaryServiceInterfaceBuilderCommand()
+        public BoundaryServiceInterfaceBuilderCommand()
         {
         }
     }
 
-    public class Handler : IRequestHandler<IBoundaryServiceInterfaceBuilderCommand, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<BoundaryServiceInterfaceBuilderCommand, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        public Task<bool> Handle(BoundaryServiceInterfaceBuilderCommand request, CancellationToken cancellationToken)
         {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
-        public Task<bool> Handle(IBoundaryServiceInterfaceBuilderCommand request, CancellationToken cancellationToken)
-        {
-            var boundaryServiceName = FileNames.BoundaryServiceInterface(_scaffoldingDirectoryStore.ProjectBaseName);
-            var classPath = ClassPathHelper.WebApiServicesClassPath(_scaffoldingDirectoryStore.SrcDirectory, $"{boundaryServiceName}.cs", _scaffoldingDirectoryStore.ProjectBaseName);
+            var boundaryServiceName = FileNames.BoundaryServiceInterface(scaffoldingDirectoryStore.ProjectBaseName);
+            var classPath = ClassPathHelper.WebApiServicesClassPath(scaffoldingDirectoryStore.SrcDirectory, $"{boundaryServiceName}.cs", scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
 
         private string GetFileText(string classNamespace)
         {
-            var boundaryServiceName = FileNames.BoundaryServiceInterface(_scaffoldingDirectoryStore.ProjectBaseName);
+            var boundaryServiceName = FileNames.BoundaryServiceInterface(scaffoldingDirectoryStore.ProjectBaseName);
             
             return @$"namespace {classNamespace};
 

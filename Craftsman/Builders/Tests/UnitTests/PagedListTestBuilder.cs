@@ -4,20 +4,13 @@ using System.IO;
 using Helpers;
 using Services;
 
-public class PagedListTestBuilder
+public class PagedListTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public PagedListTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string srcDirectory, string testDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestWrapperTestsClassPath(testDirectory, $"PagedListTests.cs", projectBaseName);
         var fileText = WriteTestFileText(srcDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string srcDirectory, ClassPath classPath, string projectBaseName)

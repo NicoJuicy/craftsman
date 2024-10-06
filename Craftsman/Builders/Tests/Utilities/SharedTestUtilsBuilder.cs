@@ -10,25 +10,18 @@ public static class SharedTestUtilsBuilder
     {
     }
 
-    public class Handler : IRequestHandler<Command, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(Command request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.SharedTestUtilitiesClassPath(_scaffoldingDirectoryStore.TestDirectory,
+            var classPath = ClassPathHelper.SharedTestUtilitiesClassPath(scaffoldingDirectoryStore.TestDirectory,
                 $"{FileNames.UnitTestUtilsName()}.cs", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
 

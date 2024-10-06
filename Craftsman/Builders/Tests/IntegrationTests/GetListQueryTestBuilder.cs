@@ -8,21 +8,14 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class GetListQueryTestBuilder
+public class GetListQueryTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public GetListQueryTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, Entity entity, string projectBaseName,
         string permission, bool featureIsProtected)
     {
         var classPath = ClassPathHelper.FeatureTestClassPath(testDirectory, $"{entity.Name}ListQueryTests.cs", entity.Plural, projectBaseName);
         var fileText = WriteTestFileText(testDirectory, srcDirectory, classPath, entity, projectBaseName, permission, featureIsProtected);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string testDirectory, string srcDirectory, ClassPath classPath,

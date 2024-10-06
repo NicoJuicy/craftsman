@@ -3,27 +3,20 @@ namespace Craftsman.Builders;
 using Helpers;
 using Services;
 
-public class LoggingConfigurationBuilder
+public class LoggingConfigurationBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public LoggingConfigurationBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateWebApiConfigFile(string projectDirectory, string authServerProjectName)
     {
         var classPath = ClassPathHelper.WebApiHostExtensionsClassPath(projectDirectory, "LoggingConfiguration.cs", authServerProjectName);
         var fileText = GetConfigTextForHostBuilder(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public void CreateBffConfigFile(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.BffHostExtensionsClassPath(solutionDirectory, "LoggingConfiguration.cs", projectBaseName);
         var fileText = GetConfigTextForHostBuilder(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetConfigTextForHostBuilder(string classNamespace)

@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class SharedKernelCsProjBuilder
+public class SharedKernelCsProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public SharedKernelCsProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateSharedKernelCsProj(string solutionDirectory)
     {
         var classPath = ClassPathHelper.SharedKernelProjectClassPath(solutionDirectory);
         var fileText = GetMessagesCsProjFileText();
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetMessagesCsProjFileText()

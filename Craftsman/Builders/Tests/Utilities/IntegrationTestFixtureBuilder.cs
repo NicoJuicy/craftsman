@@ -4,20 +4,13 @@ using Domain;
 using Helpers;
 using Services;
 
-public class IntegrationTestFixtureBuilder
+public class IntegrationTestFixtureBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public IntegrationTestFixtureBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateFixture(string testDirectory, string srcDirectory, string projectBaseName, string dbContextName, DbProvider provider, bool isProtected)
     {
         var classPath = ClassPathHelper.IntegrationTestProjectRootClassPath(testDirectory, "TestFixture.cs", projectBaseName);
         var fileText = GetFixtureText(classPath.ClassNamespace, srcDirectory, testDirectory, projectBaseName, dbContextName, provider, isProtected);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetFixtureText(string classNamespace, string srcDirectory, string testDirectory, string projectBaseName, string dbContextName, DbProvider provider, bool isProtected)

@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class FunctionalTestBaseBuilder
+public class FunctionalTestBaseBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public FunctionalTestBaseBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateBase(string srcDirectory, string testDirectory, string projectBaseName, string dbContextName, bool hasAuth)
     {
         var classPath = ClassPathHelper.FunctionalTestProjectRootClassPath(testDirectory, "TestBase.cs", projectBaseName);
         var fileText = GetBaseText(classPath.ClassNamespace, srcDirectory, testDirectory, projectBaseName, dbContextName, hasAuth);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetBaseText(string classNamespace, string srcDirectory, string testDirectory, string projectBaseName, string dbContextName, bool hasAuth)

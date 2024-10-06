@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class GithubDependabotBuilder
+public class GithubDependabotBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public GithubDependabotBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateFile(string solutionDirectory)
     {
         var classPath = ClassPathHelper.GithubClassPath(solutionDirectory, $"dependabot.yaml");
         var fileText = GetFileText();
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetFileText()

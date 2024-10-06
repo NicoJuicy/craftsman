@@ -4,24 +4,17 @@ using System.IO.Abstractions;
 using System.Text;
 using Exceptions;
 
-public class GitBuilder
+public class GitBuilder(IFileSystem fileSystem)
 {
-    private readonly IFileSystem _fileSystem;
-
-    public GitBuilder(IFileSystem fileSystem)
-    {
-        _fileSystem = fileSystem;
-    }
-
     public void CreateGitIgnore(string solutionDirectory)
     {
-        var filePath = _fileSystem.Path.Combine(solutionDirectory, ".gitignore");
+        var filePath = fileSystem.Path.Combine(solutionDirectory, ".gitignore");
 
-        if (_fileSystem.File.Exists(filePath))
+        if (fileSystem.File.Exists(filePath))
             throw new FileAlreadyExistsException(filePath);
 
         var data = GetGitIgnoreFileText();
-        using var fs = _fileSystem.File.Create(filePath);
+        using var fs = fileSystem.File.Create(filePath);
         fs.Write(Encoding.UTF8.GetBytes(data));
     }
 

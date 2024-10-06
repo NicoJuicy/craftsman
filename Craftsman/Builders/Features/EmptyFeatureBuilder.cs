@@ -4,20 +4,13 @@ using Domain;
 using Helpers;
 using Services;
 
-public class EmptyFeatureBuilder
+public class EmptyFeatureBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public EmptyFeatureBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateCommand(string srcDirectory, string contextName, string projectBaseName, Feature newFeature)
     {
         var classPath = ClassPathHelper.FeaturesClassPath(srcDirectory, $"{newFeature.Name}.cs", newFeature.EntityPlural, projectBaseName);
         var fileText = GetCommandFileText(classPath.ClassNamespace, contextName, srcDirectory, projectBaseName, newFeature);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetCommandFileText(string classNamespace, string contextName, string srcDirectory,

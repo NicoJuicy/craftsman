@@ -7,27 +7,20 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class EntityBuilder
+public class EntityBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public EntityBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateEntity(string solutionDirectory, string srcDirectory, Entity entity, string projectBaseName)
     {
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{entity.Name}.cs", entity.Plural, projectBaseName);
         var fileText = GetEntityFileText(classPath.ClassNamespace, solutionDirectory, srcDirectory, entity, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public void CreateBaseEntity(string srcDirectory, string projectBaseName, bool useSoftDelete)
     {
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"BaseEntity.cs", "", projectBaseName);
         var fileText = GetBaseEntityFileText(classPath.ClassNamespace, useSoftDelete);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetEntityFileText(string classNamespace, string solutionDirectory, string srcDirectory, Entity entity, string projectBaseName)
@@ -316,7 +309,7 @@ public abstract class BaseEntity
     {
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{entity.Name}.cs", entity.Plural, projectBaseName);
         var fileText = GetUserEntityFileText(classPath.ClassNamespace, srcDirectory, entity, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetUserEntityFileText(string classNamespace, string srcDirectory, Entity entity, string projectBaseName)
@@ -432,7 +425,7 @@ public class User : BaseEntity
         var entityName = "UserRole";
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{entityName}.cs", "Users", projectBaseName);
         var fileText = GetUserRoleEntityFileText(classPath.ClassNamespace, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetUserRoleEntityFileText(string classNamespace, string srcDirectory, string projectBaseName)
@@ -479,7 +472,7 @@ public class UserRole : BaseEntity
     {
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{entity.Name}.cs", entity.Plural, projectBaseName);
         var fileText = GetRolePermissionsEntityFileText(classPath.ClassNamespace, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetRolePermissionsEntityFileText(string classNamespace, string srcDirectory, string projectBaseName)

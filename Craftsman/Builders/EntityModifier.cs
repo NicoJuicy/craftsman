@@ -10,17 +10,8 @@ using Helpers;
 using Humanizer;
 using Services;
 
-public class EntityModifier
+public class EntityModifier(IFileSystem fileSystem, IConsoleWriter consoleWriter)
 {
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-
-    public EntityModifier(IFileSystem fileSystem, IConsoleWriter consoleWriter)
-    {
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-    }
-
     public void AddSingularRelationshipEntity(string srcDirectory, 
         string childEntityName, 
         string childEntityPlural, 
@@ -32,21 +23,21 @@ public class EntityModifier
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{childEntityName}.cs", childEntityPlural, projectBaseName);
         var parentClassPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{parentEntityName}.cs", parentEntityPlural, projectBaseName);
         
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
         var parentUsingStatement = $@"using {parentClassPath.ClassNamespace};";
         var usingStatementHasBeenAdded = false;
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -68,8 +59,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddManyRelationshipEntity(string srcDirectory, 
@@ -82,21 +73,21 @@ public class EntityModifier
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{childEntityName}.cs", childEntityPlural, projectBaseName);
         var parentClassPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{parentEntityName}.cs", parentEntityPlural, projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
         var parentUsingStatement = $@"using {parentClassPath.ClassNamespace};";
         var usingStatementHasBeenAdded = false;
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -118,8 +109,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddParentRelationshipEntity(string srcDirectory, 
@@ -139,12 +130,12 @@ public class EntityModifier
             parentModelsClassPath = ClassPathHelper.EntityModelClassPath(srcDirectory, $"{parentEntityName}.cs", parentEntityPlural, EntityModel.Creation, projectBaseName);
         }
         
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
@@ -161,9 +152,9 @@ public class EntityModifier
             parentEntityName,
             parentEntityPlural);
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -185,8 +176,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddStringArrayManagement(string srcDirectory, 
@@ -198,12 +189,12 @@ public class EntityModifier
         var classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{entityName}.cs", entityPlural, projectBaseName);
 
         
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
@@ -232,9 +223,9 @@ public class EntityModifier
     }}";
         
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -251,8 +242,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddEntityManyManagementMethods(string srcDirectory, 
@@ -268,12 +259,12 @@ public class EntityModifier
             classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{property.ForeignEntityName}.cs", property.ForeignEntityPlural, projectBaseName);   
         }
         
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
@@ -284,9 +275,9 @@ public class EntityModifier
             managedListMethods += GetListManagementMethods(parentEntityName, property.ForeignEntityName, property.ForeignEntityPlural);
         
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -303,8 +294,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddEntitySingularManagementMethods(string srcDirectory, 
@@ -320,12 +311,12 @@ public class EntityModifier
             classPath = ClassPathHelper.EntityClassPath(srcDirectory, $"{property.ForeignEntityName}.cs", property.ForeignEntityPlural, projectBaseName);
         }
         
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
         
@@ -336,9 +327,9 @@ public class EntityModifier
             managedEntityMethod += GetEntityManagementMethods(parentEntityName, property.ForeignEntityName, property.Name);
         
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -355,8 +346,8 @@ public class EntityModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     private static string GetListManagementMethods(string rootEntity, string managedEntity, string managedEntityPlural)

@@ -3,20 +3,13 @@ namespace Craftsman.Builders;
 using Helpers;
 using Services;
 
-public class QueryKitConfigBuilder
+public class QueryKitConfigBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public QueryKitConfigBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateConfig(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiResourcesClassPath(srcDirectory, "CustomQueryKitConfiguration.cs", projectBaseName);
         var fileText = GetConfigText(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetConfigText(string classNamespace)

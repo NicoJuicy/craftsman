@@ -6,20 +6,13 @@ using Domain;
 using Helpers;
 using Services;
 
-public class MessageBuilder
+public class MessageBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public MessageBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateMessage(string solutionDirectory, Message message)
     {
         var classPath = ClassPathHelper.MessagesClassPath(solutionDirectory, $"{FileNames.MessageClassName(message.Name)}.cs");
         var fileText = GetMessageFileText(classPath.ClassNamespace, message);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetMessageFileText(string classNamespace, Message message)

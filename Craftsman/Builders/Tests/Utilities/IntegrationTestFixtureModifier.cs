@@ -6,37 +6,28 @@ using System.IO.Abstractions;
 using Helpers;
 using Services;
 
-public class IntegrationTestFixtureModifier
+public class IntegrationTestFixtureModifier(IFileSystem fileSystem, IConsoleWriter consoleWriter)
 {
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-
-    public IntegrationTestFixtureModifier(IFileSystem fileSystem, IConsoleWriter consoleWriter)
-    {
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-    }
-
     public void AddMassTransit(string testDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.IntegrationTestProjectRootClassPath(testDirectory, "TestFixture.cs", projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.ClassDirectory}` directory could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.ClassDirectory}` directory could not be found.");
             return;
         }
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
         {
-            _consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
+            consoleWriter.WriteInfo($"The `{classPath.FullClassPath}` file could not be found.");
             return;
         }
 
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             string line;
             while (null != (line = input.ReadLine()))
             {
@@ -124,27 +115,27 @@ public class IntegrationTestFixtureModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public void AddMasstransitConsumer(string testDirectory, string consumerName, string domainDirectory, string projectBaseName, string srcDirectory)
     {
         var classPath = ClassPathHelper.IntegrationTestProjectRootClassPath(testDirectory, "TestFixture.cs", projectBaseName);
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
             throw new DirectoryNotFoundException($"The `{classPath.ClassDirectory}` directory could not be found.");
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
             throw new FileNotFoundException($"The `{classPath.FullClassPath}` file could not be found.");
 
         var consumerClassPath = ClassPathHelper.ConsumerFeaturesClassPath(srcDirectory, $"", domainDirectory, projectBaseName);
 
         var tempPath = $"{classPath.FullClassPath}temp";
         var hasUsingForConsumerNamespace = false;
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             string line;
             while (null != (line = input.ReadLine()))
             {
@@ -163,14 +154,14 @@ public class IntegrationTestFixtureModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
 
         if (!hasUsingForConsumerNamespace)
         {
-            using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+            using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
             {
-                using var output = _fileSystem.File.CreateText(tempPath);
+                using var output = fileSystem.File.CreateText(tempPath);
                 string line;
                 while (null != (line = input.ReadLine()))
                 {
@@ -183,8 +174,8 @@ public class IntegrationTestFixtureModifier
             }
 
             // delete the old file and set the name of the new one to the original name
-            _fileSystem.File.Delete(classPath.FullClassPath);
-            _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+            fileSystem.File.Delete(classPath.FullClassPath);
+            fileSystem.File.Move(tempPath, classPath.FullClassPath);
         }
     }
 }

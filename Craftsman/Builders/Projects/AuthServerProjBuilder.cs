@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class AuthServerProjBuilder
+public class AuthServerProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AuthServerProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateProject(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiProjectClassPath(solutionDirectory, projectBaseName);
         var fileText = ProjectFileText();
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string ProjectFileText()

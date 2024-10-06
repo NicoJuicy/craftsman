@@ -7,15 +7,8 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public sealed class FakesBuilder
+public sealed class FakesBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public FakesBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateFakes(string srcDirectory, string testDirectory, string projectBaseName, Entity entity)
     {
         // ****this class path will have an invalid FullClassPath. just need the directory
@@ -78,7 +71,7 @@ public sealed class FakesBuilder
         var fakeFilename = $"Fake{objectToFakeClassName}.cs";
         var classPath = ClassPathHelper.TestFakesClassPath(testDirectory, fakeFilename, entity.Name, projectBaseName);
         var fileText = GetFakeFileText(classPath.ClassNamespace, dtoType, entity, srcDirectory, testDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetFakeFileText(string classNamespace, Dto dtoType, Entity entity, string srcDirectory, string testDirectory, string projectBaseName)
@@ -132,7 +125,7 @@ public sealed class Fake{objectToFakeClassName} : AutoFaker<{objectToFakeClassNa
         var fakeFilename = $"Fake{objectToFakeClassName}.cs";
         var classPath = ClassPathHelper.TestFakesClassPath(testDirectory, fakeFilename, entity.Name, projectBaseName);
         var fileText = GetFakeFileText(classPath.ClassNamespace, modelType, entity, srcDirectory, testDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
     
     private static string GetFakeFileText(string classNamespace, EntityModel modelType, Entity entity, string srcDirectory, string testDirectory, string projectBaseName)
@@ -204,7 +197,7 @@ public sealed class Fake{objectToFakeClassName} : AutoFaker<{objectToFakeClassNa
     }}
 }}";
 
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
 
@@ -234,7 +227,7 @@ public sealed class Fake{objectToFakeClassName} : AutoFaker<{objectToFakeClassNa
     }}
 }}";
 
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
     private void CreateAddressFakerForCreationOrUpdateFile(string srcDirectory, string testDirectory, string objectToFakeClassName, Entity entity, string projectBaseName)
     {
@@ -261,7 +254,7 @@ public sealed class Fake{objectToFakeClassName} : AutoFaker<{objectToFakeClassNa
     }}
 }}";
 
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
     
     private void CreateAddressFakerForReadDtoFile(string srcDirectory, string testDirectory, string projectBaseName)
@@ -295,6 +288,6 @@ public class FakeAddress
     }}
 }}";
 
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 }

@@ -12,28 +12,16 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Validators;
 
-public class AddProducerCommand : Command<AddProducerCommand.Settings>
+public class AddProducerCommand(
+    IAnsiConsole console,
+    IFileSystem fileSystem,
+    IConsoleWriter consoleWriter,
+    ICraftsmanUtilities utilities,
+    IScaffoldingDirectoryStore scaffoldingDirectoryStore,
+    IFileParsingHelper fileParsingHelper)
+    : Command<AddProducerCommand.Settings>
 {
-    private readonly IAnsiConsole _console;
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-    private readonly IFileParsingHelper _fileParsingHelper;
-
-    public AddProducerCommand(IAnsiConsole console,
-        IFileSystem fileSystem,
-        IConsoleWriter consoleWriter,
-        ICraftsmanUtilities utilities,
-        IScaffoldingDirectoryStore scaffoldingDirectoryStore, IFileParsingHelper fileParsingHelper)
-    {
-        _console = console;
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-        _utilities = utilities;
-        _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        _fileParsingHelper = fileParsingHelper;
-    }
+    private readonly IAnsiConsole _console = console;
 
     public class Settings : CommandSettings
     {
@@ -43,24 +31,24 @@ public class AddProducerCommand : Command<AddProducerCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
-        var potentialBoundaryDirectory = _utilities.GetRootDir();
+        var potentialBoundaryDirectory = utilities.GetRootDir();
 
-        var solutionDirectory = _fileSystem.Directory.GetParent(potentialBoundaryDirectory)?.FullName;
-        _utilities.IsSolutionDirectoryGuard(solutionDirectory, true);
-        _scaffoldingDirectoryStore.SetSolutionDirectory(solutionDirectory);
+        var solutionDirectory = fileSystem.Directory.GetParent(potentialBoundaryDirectory)?.FullName;
+        utilities.IsSolutionDirectoryGuard(solutionDirectory, true);
+        scaffoldingDirectoryStore.SetSolutionDirectory(solutionDirectory);
 
         var projectName = new DirectoryInfo(potentialBoundaryDirectory).Name;
-        _scaffoldingDirectoryStore.SetBoundedContextDirectoryAndProject(projectName);
-        _utilities.IsBoundedContextDirectoryGuard();
+        scaffoldingDirectoryStore.SetBoundedContextDirectoryAndProject(projectName);
+        utilities.IsBoundedContextDirectoryGuard();
 
         // TODO make injectable
-        _fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
-        var template = _fileParsingHelper.GetTemplateFromFile<ProducerTemplate>(settings.Filepath);
-        _consoleWriter.WriteLogMessage($"Your template file was parsed successfully");
+        fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
+        var template = fileParsingHelper.GetTemplateFromFile<ProducerTemplate>(settings.Filepath);
+        consoleWriter.WriteLogMessage($"Your template file was parsed successfully");
 
-        AddProducers(template.Producers, _scaffoldingDirectoryStore.ProjectBaseName, solutionDirectory, _scaffoldingDirectoryStore.SrcDirectory, _scaffoldingDirectoryStore.TestDirectory);
+        AddProducers(template.Producers, scaffoldingDirectoryStore.ProjectBaseName, solutionDirectory, scaffoldingDirectoryStore.SrcDirectory, scaffoldingDirectoryStore.TestDirectory);
 
-        _consoleWriter.WriteHelpHeader($"{Environment.NewLine}Your consumer has been successfully added. Keep up the good work!");
+        consoleWriter.WriteHelpHeader($"{Environment.NewLine}Your consumer has been successfully added. Keep up the good work!");
         return 0;
     }
 
@@ -76,9 +64,9 @@ public class AddProducerCommand : Command<AddProducerCommand.Settings>
 
         producers.ForEach(producer =>
         {
-            new ProducerBuilder(_utilities).CreateProducerFeature(solutionDirectory, srcDirectory, producer, projectBaseName);
-            new ProducerRegistrationBuilder(_utilities).CreateProducerRegistration(solutionDirectory, srcDirectory, producer, projectBaseName);
-            new MassTransitModifier(_fileSystem).AddProducerRegistration(srcDirectory, producer.EndpointRegistrationMethodName, projectBaseName);
+            new ProducerBuilder(utilities).CreateProducerFeature(solutionDirectory, srcDirectory, producer, projectBaseName);
+            new ProducerRegistrationBuilder(utilities).CreateProducerRegistration(solutionDirectory, srcDirectory, producer, projectBaseName);
+            new MassTransitModifier(fileSystem).AddProducerRegistration(srcDirectory, producer.EndpointRegistrationMethodName, projectBaseName);
         });
     }
 }

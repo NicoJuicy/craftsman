@@ -10,26 +10,19 @@ public static class ValueObjectBuilder
     {
     }
 
-    public class Handler : IRequestHandler<ValueObjectBuilderCommand, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<ValueObjectBuilderCommand, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(ValueObjectBuilderCommand request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.EntityClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.EntityClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"ValueObject.cs", 
                 "", 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
 

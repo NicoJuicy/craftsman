@@ -3,20 +3,13 @@ namespace Craftsman.Builders;
 using Helpers;
 using Services;
 
-public class ConstsResourceBuilder
+public class ConstsResourceBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ConstsResourceBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateLocalConfig(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiResourcesClassPath(srcDirectory, "Consts.cs", projectBaseName);
         var fileText = GetConfigText(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetConfigText(string classNamespace)

@@ -3,19 +3,13 @@
 using Helpers;
 using Services;
 
-public class CurrentUserServiceBuilder
+public class CurrentUserServiceBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public CurrentUserServiceBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
     public void GetCurrentUserService(string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiServicesClassPath(srcDirectory, "CurrentUserService.cs", projectBaseName);
         var fileText = GetCurrentUserServiceText(classPath.ClassNamespace, srcDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetCurrentUserServiceText(string classNamespace, string srcDirectory, string projectBaseName)

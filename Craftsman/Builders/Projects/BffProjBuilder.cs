@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class BffProjBuilder
+public class BffProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public BffProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateProject(string solutionDirectory, string projectBaseName, int? proxyPort)
     {
         var classPath = ClassPathHelper.WebApiProjectClassPath(solutionDirectory, projectBaseName);
         var fileText = ProjectFileText(proxyPort, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string ProjectFileText(int? proxyPort, string projectBaseName)

@@ -9,31 +9,18 @@ using Services;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-public class NewExampleCommand : Command<NewExampleCommand.Settings>
+public class NewExampleCommand(
+    IAnsiConsole console,
+    IFileSystem fileSystem,
+    IConsoleWriter consoleWriter,
+    ICraftsmanUtilities utilities,
+    IScaffoldingDirectoryStore scaffoldingDirectoryStore,
+    IDbMigrator dbMigrator,
+    IGitService gitService,
+    IFileParsingHelper fileParsingHelper,
+    IMediator mediator)
+    : Command<NewExampleCommand.Settings>
 {
-    private readonly IAnsiConsole _console;
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-    private readonly IDbMigrator _dbMigrator;
-    private readonly IGitService _gitService;
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-    private readonly IFileParsingHelper _fileParsingHelper;
-    private readonly IMediator _mediator;
-
-    public NewExampleCommand(IAnsiConsole console, IFileSystem fileSystem, IConsoleWriter consoleWriter, ICraftsmanUtilities utilities, IScaffoldingDirectoryStore scaffoldingDirectoryStore, IDbMigrator dbMigrator, IGitService gitService, IFileParsingHelper fileParsingHelper, IMediator mediator)
-    {
-        _console = console;
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-        _utilities = utilities;
-        _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        _dbMigrator = dbMigrator;
-        _gitService = gitService;
-        _fileParsingHelper = fileParsingHelper;
-        _mediator = mediator;
-    }
-
     public class Settings : CommandSettings
     {
         [CommandArgument(0, "[ProjectName]")]
@@ -42,33 +29,33 @@ public class NewExampleCommand : Command<NewExampleCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
-        var rootDir = _fileSystem.Directory.GetCurrentDirectory();
+        var rootDir = fileSystem.Directory.GetCurrentDirectory();
         var myEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         if (myEnv == "Dev")
-            rootDir = _console.Ask<string>("Enter the root directory of your project:");
+            rootDir = console.Ask<string>("Enter the root directory of your project:");
 
         var (exampleType, projectName) = RunPrompt(settings.ProjectName);
         var templateString = GetExampleDomain(projectName, exampleType);
 
         var domainProject = FileParsingHelper.ReadYamlString<DomainProject>(templateString);
 
-        _scaffoldingDirectoryStore.SetSolutionDirectory(rootDir, domainProject.DomainName);
-        var domainCommand = new NewDomainCommand(_console, _fileSystem, _consoleWriter, _utilities, _scaffoldingDirectoryStore, _dbMigrator, _gitService, _fileParsingHelper, _mediator);
+        scaffoldingDirectoryStore.SetSolutionDirectory(rootDir, domainProject.DomainName);
+        var domainCommand = new NewDomainCommand(console, fileSystem, consoleWriter, utilities, scaffoldingDirectoryStore, dbMigrator, gitService, fileParsingHelper, mediator);
         domainCommand.CreateNewDomainProject(domainProject);
 
-        new ExampleTemplateBuilder(_utilities).CreateYamlFile(_scaffoldingDirectoryStore.SolutionDirectory,
+        new ExampleTemplateBuilder(utilities).CreateYamlFile(scaffoldingDirectoryStore.SolutionDirectory,
             templateString);
-        _console.MarkupLine($"{Environment.NewLine}[bold yellow1]Your example project is project is ready![/]");
+        console.MarkupLine($"{Environment.NewLine}[bold yellow1]Your example project is project is ready![/]");
 
-        _consoleWriter.StarGithubRequest();
+        consoleWriter.StarGithubRequest();
         return 0;
     }
 
     private (ExampleType type, string name) RunPrompt(string projectName)
     {
-        _console.WriteLine();
-        _console.Write(new Rule("[yellow]Create an Example Project[/]").RuleStyle("grey").Centered());
+        console.WriteLine();
+        console.Write(new Rule("[yellow]Create an Example Project[/]").RuleStyle("grey").Centered());
 
         var typeString = AskExampleType();
         var exampleType = ExampleType.FromName(typeString, ignoreCase: true);
@@ -82,7 +69,7 @@ public class NewExampleCommand : Command<NewExampleCommand.Settings>
     {
         var exampleTypes = ExampleType.List.Select(e => e.Name);
 
-        return _console.Prompt(
+        return console.Prompt(
             new SelectionPrompt<string>()
                 .Title("What [green]type of example[/] do you want to create?")
                 .PageSize(50)
@@ -92,7 +79,7 @@ public class NewExampleCommand : Command<NewExampleCommand.Settings>
 
     private string AskExampleProjectName()
     {
-        return _console.Ask<string>("What would you like to name this project (e.g. [green]MyExampleProject[/])?");
+        return console.Ask<string>("What would you like to name this project (e.g. [green]MyExampleProject[/])?");
     }
 
     private static string GetExampleDomain(string name, ExampleType exampleType)

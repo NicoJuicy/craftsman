@@ -4,20 +4,13 @@ using Domain;
 using Helpers;
 using Services;
 
-public class WebApiAppExtensionsBuilder
+public class WebApiAppExtensionsBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public WebApiAppExtensionsBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateSwaggerWebApiAppExtension(string srcDirectory, SwaggerConfig swaggerConfig, bool addJwtAuthentication, string projectBaseName)
     {
         var classPath = ClassPathHelper.WebApiApplicationExtensionsClassPath(srcDirectory, $"SwaggerAppExtension.cs", projectBaseName);
         var fileText = GetSwaggerAppExtensionText(classPath.ClassNamespace, srcDirectory, swaggerConfig, addJwtAuthentication, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetSwaggerAppExtensionText(string classNamespace, string srcDirectory, SwaggerConfig swaggerConfig, bool addJwtAuthentication, string projectBaseName)

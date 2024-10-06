@@ -5,15 +5,8 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class ProducerRegistrationBuilder
+public class ProducerRegistrationBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ProducerRegistrationBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateProducerRegistration(string solutionDirectory, string srcDirectory, Producer producer, string projectBaseName)
     {
         var className = $@"{producer.EndpointRegistrationMethodName}Registration";
@@ -26,7 +19,7 @@ public class ProducerRegistrationBuilder
         else
             fileText = GetFanoutProducerRegistration(solutionDirectory, classPath.ClassNamespace, className, producer);
 
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetDirectOrTopicProducerRegistration(string solutionDirectory, string classNamespace, string className, Producer producer)

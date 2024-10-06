@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class IntegrationTestServiceScopeBuilder
+public class IntegrationTestServiceScopeBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public IntegrationTestServiceScopeBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateBase(string solutionDirectory, string projectBaseName, string dbContextName, bool isProtected)
     {
         var classPath = ClassPathHelper.IntegrationTestProjectRootClassPath(solutionDirectory, $"{FileNames.TestingServiceScope()}.cs", projectBaseName);
         var fileText = GetBaseText(classPath.ClassNamespace, dbContextName, isProtected);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetBaseText(string classNamespace, string dbContextName, bool isProtected)

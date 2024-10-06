@@ -5,20 +5,13 @@ using Domain.Enums;
 using Helpers;
 using Services;
 
-public class EmailUnitTestBuilder
+public class EmailUnitTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public EmailUnitTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, string entityName, string entityPlural, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestEntityTestsClassPath(testDirectory, $"{FileNames.CreateEntityUnitTestName(entityName)}.cs", entityPlural, projectBaseName);
         var fileText = WriteTestFileText(srcDirectory, classPath, entityPlural, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string srcDirectory, ClassPath classPath, string entityPlural, string projectBaseName)

@@ -6,39 +6,22 @@ using Services;
 
 public static class UpdatedDomainEventBuilder
 {
-    public class UpdatedDomainEventBuilderCommand : IRequest<bool>
+    public sealed record UpdatedDomainEventBuilderCommand(string EntityName, string EntityPlural) : IRequest;
+
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<UpdatedDomainEventBuilderCommand>
     {
-        public string EntityName { get; set; }
-        public string EntityPlural { get; set; }
-
-        public UpdatedDomainEventBuilderCommand(string entityName, string entityPlural)
+        public Task Handle(UpdatedDomainEventBuilderCommand request, CancellationToken cancellationToken)
         {
-            EntityName = entityName;
-            EntityPlural = entityPlural;
-        }
-    }
-
-    public class Handler : IRequestHandler<UpdatedDomainEventBuilderCommand, bool>
-    {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
-        public Task<bool> Handle(UpdatedDomainEventBuilderCommand request, CancellationToken cancellationToken)
-        {
-            var classPath = ClassPathHelper.DomainEventsClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var classPath = ClassPathHelper.DomainEventsClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"{FileNames.EntityUpdatedDomainMessage(request.EntityName)}.cs",
                 request.EntityPlural,
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace, request.EntityName);
-            _utilities.CreateFile(classPath, fileText);
-            return Task.FromResult(true);
+            utilities.CreateFile(classPath, fileText);
+            return Task.CompletedTask;
         }
 
         private static string GetFileText(string classNamespace, string entityName)

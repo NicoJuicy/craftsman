@@ -6,31 +6,24 @@ using Services;
 
 public static class UpdatedUserRoleDomainEventBuilder
 {
-    public class Command : IRequest<bool>
+    public class Command : IRequest
     {
     }
 
-    public class Handler : IRequestHandler<Command, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        public Task Handle(Command request, CancellationToken cancellationToken)
         {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
-        public Task<bool> Handle(Command request, CancellationToken cancellationToken)
-        {
-            var classPath = ClassPathHelper.DomainEventsClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var classPath = ClassPathHelper.DomainEventsClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 $"{FileNames.UserRolesUpdateDomainMessage()}.cs",
                 "Users",
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace);
-            _utilities.CreateFile(classPath, fileText);
-            return Task.FromResult(true);
+            utilities.CreateFile(classPath, fileText);
+            return Task.CompletedTask;
         }
 
         private static string GetFileText(string classNamespace)

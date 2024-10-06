@@ -7,15 +7,8 @@ using System.IO.Abstractions;
 using Domain;
 using Services;
 
-public class DbContextModifier
+public class DbContextModifier(IFileSystem fileSystem)
 {
-    private readonly IFileSystem _fileSystem;
-
-    public DbContextModifier(IFileSystem fileSystem)
-    {
-        _fileSystem = fileSystem;
-    }
-
     public void AddDbSetAndConfig(string solutionDirectory, List<Entity> entities, string dbContextName, string projectBaseName)
     {
         var classPath = ClassPathHelper.DbContextClassPath(solutionDirectory, $"{dbContextName}.cs", projectBaseName);
@@ -27,16 +20,16 @@ public class DbContextModifier
                 entitiesUsings += $"using {entityClassPath.ClassNamespace};{Environment.NewLine}"; // note this foreach adds newline after where dbbuilder adds before
         }
 
-        if (!_fileSystem.Directory.Exists(classPath.ClassDirectory))
-            _fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
+        if (!fileSystem.Directory.Exists(classPath.ClassDirectory))
+            fileSystem.Directory.CreateDirectory(classPath.ClassDirectory);
 
-        if (!_fileSystem.File.Exists(classPath.FullClassPath))
+        if (!fileSystem.File.Exists(classPath.FullClassPath))
             throw new FileNotFoundException($"The `{classPath.FullClassPath}` file could not be found.");
 
         var tempPath = $"{classPath.FullClassPath}temp";
-        using (var input = _fileSystem.File.OpenText(classPath.FullClassPath))
+        using (var input = fileSystem.File.OpenText(classPath.FullClassPath))
         {
-            using var output = _fileSystem.File.CreateText(tempPath);
+            using var output = fileSystem.File.CreateText(tempPath);
             {
                 string line;
                 while (null != (line = input.ReadLine()))
@@ -64,8 +57,8 @@ public class DbContextModifier
         }
 
         // delete the old file and set the name of the new one to the original name
-        _fileSystem.File.Delete(classPath.FullClassPath);
-        _fileSystem.File.Move(tempPath, classPath.FullClassPath);
+        fileSystem.File.Delete(classPath.FullClassPath);
+        fileSystem.File.Move(tempPath, classPath.FullClassPath);
     }
 
     public static string GetDbEntityConfigs(List<Entity> entities)

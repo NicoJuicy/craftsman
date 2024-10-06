@@ -4,20 +4,13 @@ using System.IO;
 using Helpers;
 using Services;
 
-public class CurrentUserServiceTestBuilder
+public class CurrentUserServiceTestBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public CurrentUserServiceTestBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.UnitTestServiceTestsClassPath(testDirectory, $"CurrentUserServiceTests.cs", projectBaseName);
         var fileText = WriteTestFileText(srcDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string srcDirectory, ClassPath classPath, string projectBaseName)

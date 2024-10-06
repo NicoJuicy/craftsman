@@ -4,15 +4,8 @@ using Domain;
 using Helpers;
 using Services;
 
-public class AppSettingsDevelopmentBuilder
+public class AppSettingsDevelopmentBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AppSettingsDevelopmentBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     /// <summary>
     /// this build will create environment based app settings files.
     /// </summary>
@@ -21,7 +14,7 @@ public class AppSettingsDevelopmentBuilder
         var appSettingFilename = FileNames.GetAppSettingsName(true);
         var classPath = ClassPathHelper.WebApiAppSettingsClassPath(srcDirectory, $"{appSettingFilename}", projectBaseName);
         var fileText = GetAppSettingsText(env, dockerConfig, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetAppSettingsText(ApiEnvironment env, DockerConfig dockerConfig, string projectBaseName)

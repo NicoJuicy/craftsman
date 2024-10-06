@@ -10,33 +10,26 @@ public static class DatabaseEntityConfigBuilder
 
     public record Command(string EntityName, string EntityPlural, List<EntityProperty> Properties) : IRequest<bool>;
     
-    public class Handler : IRequestHandler<Command, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<Command, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(Command request, CancellationToken cancellationToken)
         {
-            var classPath = ClassPathHelper.DatabaseConfigClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var classPath = ClassPathHelper.DatabaseConfigClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 $"{FileNames.GetDatabaseEntityConfigName(request.EntityName)}.cs",
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var fileText = GetFileText(classPath.ClassNamespace, request.EntityName, request.EntityPlural);
-            _utilities.CreateFile(classPath, fileText);
+            utilities.CreateFile(classPath, fileText);
             return Task.FromResult(true);
         }
         private string GetFileText(string classNamespace, string entityName, string entityPlural)
         {
-            var domainPolicyClassPath = ClassPathHelper.EntityClassPath(_scaffoldingDirectoryStore.SrcDirectory,
+            var domainPolicyClassPath = ClassPathHelper.EntityClassPath(scaffoldingDirectoryStore.SrcDirectory,
                 "", 
                 entityPlural, 
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             
             return @$"namespace {classNamespace};
 

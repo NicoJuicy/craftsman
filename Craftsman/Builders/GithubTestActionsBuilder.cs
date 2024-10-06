@@ -4,21 +4,14 @@ using Helpers;
 using Humanizer;
 using Services;
 
-public class GithubTestActionsBuilder
+public class GithubTestActionsBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public GithubTestActionsBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateUnitTestAction(string solutionDirectory, string projectBaseName)
     {
         var humanized = $"{projectBaseName}UnitTests".Kebaberize();
         var classPath = ClassPathHelper.GithubWorkflowsClassPath(solutionDirectory, $"{humanized}.yaml");
         var fileText = GetUnitTestFileText(projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
     
     public void CreateIntegrationTestAction(string solutionDirectory, string projectBaseName)
@@ -26,7 +19,7 @@ public class GithubTestActionsBuilder
         var humanized = $"{projectBaseName}IntegrationTests".Kebaberize();
         var classPath = ClassPathHelper.GithubWorkflowsClassPath(solutionDirectory, $"{humanized}.yaml");
         var fileText = GetIntegrationTestFileText(projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
     
     public void CreateFunctionalTestAction(string solutionDirectory, string projectBaseName)
@@ -34,7 +27,7 @@ public class GithubTestActionsBuilder
         var humanized = $"{projectBaseName}FunctionalTests".Kebaberize();
         var classPath = ClassPathHelper.GithubWorkflowsClassPath(solutionDirectory, $"{humanized}.yaml");
         var fileText = GetFunctionalTestFileText(projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     public static string GetUnitTestFileText(string projectBaseName)

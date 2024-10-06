@@ -12,40 +12,33 @@ public static class ValueObjectDtoBuilder
     {
     }
 
-    public class Handler : IRequestHandler<ValueObjectDtoBuilderCommand, bool>
+    public class Handler(
+        ICraftsmanUtilities utilities,
+        IScaffoldingDirectoryStore scaffoldingDirectoryStore)
+        : IRequestHandler<ValueObjectDtoBuilderCommand, bool>
     {
-        private readonly ICraftsmanUtilities _utilities;
-        private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-        public Handler(ICraftsmanUtilities utilities,
-            IScaffoldingDirectoryStore scaffoldingDirectoryStore)
-        {
-            _utilities = utilities;
-            _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        }
-
         public Task<bool> Handle(ValueObjectDtoBuilderCommand request, CancellationToken cancellationToken)
         {
-            var addressReadDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var addressReadDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 ValueObjectEnum.Address,
                 Dto.Read,
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var readDtoText = GetAddressDtoText(addressReadDtoClassPath.ClassNamespace);
-            _utilities.CreateFile(addressReadDtoClassPath, readDtoText);
+            utilities.CreateFile(addressReadDtoClassPath, readDtoText);
             
-            var addressCreateDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var addressCreateDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 ValueObjectEnum.Address,
                 Dto.Creation,
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var createDtoText = GetAddressCreateDtoText(addressCreateDtoClassPath.ClassNamespace);
-            _utilities.CreateFile(addressCreateDtoClassPath, createDtoText);
+            utilities.CreateFile(addressCreateDtoClassPath, createDtoText);
             
-            var addressUpdateDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(_scaffoldingDirectoryStore.SrcDirectory, 
+            var addressUpdateDtoClassPath = ClassPathHelper.WebApiValueObjectDtosClassPath(scaffoldingDirectoryStore.SrcDirectory, 
                 ValueObjectEnum.Address,
                 Dto.Update,
-                _scaffoldingDirectoryStore.ProjectBaseName);
+                scaffoldingDirectoryStore.ProjectBaseName);
             var updateDtoText = GetAddressUpdateDtoText(addressUpdateDtoClassPath.ClassNamespace);
-            _utilities.CreateFile(addressUpdateDtoClassPath, updateDtoText);
+            utilities.CreateFile(addressUpdateDtoClassPath, updateDtoText);
 
             return Task.FromResult(true);
         }

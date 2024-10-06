@@ -3,19 +3,12 @@
 using Helpers;
 using Services;
 
-public class SharedTestsCsProjBuilder
+public class SharedTestsCsProjBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public SharedTestsCsProjBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTestsCsProj(string solutionDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.SharedTestProjectClassPath(solutionDirectory, projectBaseName);
-        _utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName));
+        utilities.CreateFile(classPath, GetTestsCsProjFileText(solutionDirectory, projectBaseName));
     }
 
     public static string GetTestsCsProjFileText(string solutionDirectory, string projectBaseName)

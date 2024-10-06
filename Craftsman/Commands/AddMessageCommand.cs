@@ -10,28 +10,17 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Validators;
 
-public class AddMessageCommand : Command<AddMessageCommand.Settings>
+public class AddMessageCommand(
+    IFileSystem fileSystem,
+    IConsoleWriter consoleWriter,
+    ICraftsmanUtilities utilities,
+    IScaffoldingDirectoryStore scaffoldingDirectoryStore,
+    IAnsiConsole console,
+    IFileParsingHelper fileParsingHelper)
+    : Command<AddMessageCommand.Settings>
 {
-    private readonly IFileSystem _fileSystem;
-    private readonly IConsoleWriter _consoleWriter;
-    private readonly IFileParsingHelper _fileParsingHelper;
-    private readonly IAnsiConsole _console;
-    private readonly ICraftsmanUtilities _utilities;
-    private readonly IScaffoldingDirectoryStore _scaffoldingDirectoryStore;
-
-    public AddMessageCommand(IFileSystem fileSystem,
-        IConsoleWriter consoleWriter,
-        ICraftsmanUtilities utilities,
-        IScaffoldingDirectoryStore scaffoldingDirectoryStore,
-        IAnsiConsole console, IFileParsingHelper fileParsingHelper)
-    {
-        _fileSystem = fileSystem;
-        _consoleWriter = consoleWriter;
-        _utilities = utilities;
-        _scaffoldingDirectoryStore = scaffoldingDirectoryStore;
-        _console = console;
-        _fileParsingHelper = fileParsingHelper;
-    }
+    private readonly IFileSystem _fileSystem = fileSystem;
+    private readonly IAnsiConsole _console = console;
 
     public class Settings : CommandSettings
     {
@@ -41,18 +30,18 @@ public class AddMessageCommand : Command<AddMessageCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
-        var potentialSolutionDir = _utilities.GetRootDir();
+        var potentialSolutionDir = utilities.GetRootDir();
 
-        _utilities.IsSolutionDirectoryGuard(potentialSolutionDir);
-        _scaffoldingDirectoryStore.SetSolutionDirectory(potentialSolutionDir);
+        utilities.IsSolutionDirectoryGuard(potentialSolutionDir);
+        scaffoldingDirectoryStore.SetSolutionDirectory(potentialSolutionDir);
 
-        _fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
-        var template = _fileParsingHelper.GetTemplateFromFile<MessageTemplate>(settings.Filepath);
-        _consoleWriter.WriteHelpText($"Your template file was parsed successfully.");
+        fileParsingHelper.RunInitialTemplateParsingGuards(settings.Filepath);
+        var template = fileParsingHelper.GetTemplateFromFile<MessageTemplate>(settings.Filepath);
+        consoleWriter.WriteHelpText($"Your template file was parsed successfully.");
 
-        AddMessages(_scaffoldingDirectoryStore.SolutionDirectory, template.Messages);
+        AddMessages(scaffoldingDirectoryStore.SolutionDirectory, template.Messages);
 
-        _consoleWriter.WriteHelpHeader($"{Environment.NewLine}Your feature has been successfully added. Keep up the good work! {Emoji.Known.Sparkles}");
+        consoleWriter.WriteHelpHeader($"{Environment.NewLine}Your feature has been successfully added. Keep up the good work! {Emoji.Known.Sparkles}");
         return 0;
     }
 
@@ -66,6 +55,6 @@ public class AddMessageCommand : Command<AddMessageCommand.Settings>
                 throw new DataValidationErrorException(results.Errors);
         }
 
-        messages.ForEach(message => new MessageBuilder(_utilities).CreateMessage(solutionDirectory, message));
+        messages.ForEach(message => new MessageBuilder(utilities).CreateMessage(solutionDirectory, message));
     }
 }

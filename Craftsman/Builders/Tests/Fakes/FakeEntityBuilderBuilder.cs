@@ -11,10 +11,7 @@ public class FakeEntityBuilderBuilder
 {
     private readonly ICraftsmanUtilities _utilities;
 
-    public FakeEntityBuilderBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
+    public FakeEntityBuilderBuilder(ICraftsmanUtilities utilities) => _utilities = utilities;
 
     public void CreateFakeBuilder(string srcDirectory, string testDirectory, string projectBaseName, Entity entity)
     {

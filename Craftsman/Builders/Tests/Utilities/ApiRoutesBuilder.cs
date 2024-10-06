@@ -3,20 +3,13 @@
 using Helpers;
 using Services;
 
-public class ApiRoutesBuilder
+public class ApiRoutesBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public ApiRoutesBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateClass(string testDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.FunctionalTestUtilitiesClassPath(testDirectory, projectBaseName, "ApiRoutes.cs");
         var fileText = GetBaseText(classPath.ClassNamespace);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetBaseText(string classNamespace)

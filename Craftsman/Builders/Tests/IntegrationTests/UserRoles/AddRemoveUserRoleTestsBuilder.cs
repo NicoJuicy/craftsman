@@ -5,20 +5,13 @@ using Craftsman.Domain.Enums;
 using Craftsman.Helpers;
 using Craftsman.Services;
 
-public class AddRemoveUserRoleTestsBuilder
+public class AddRemoveUserRoleTestsBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public AddRemoveUserRoleTestsBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateTests(string testDirectory, string srcDirectory, string projectBaseName)
     {
         var classPath = ClassPathHelper.FeatureTestClassPath(testDirectory, $"AddRemoveUserRoleTests.cs", "Users", projectBaseName);
         var fileText = WriteTestFileText(testDirectory, srcDirectory, classPath, projectBaseName);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string WriteTestFileText(string testDirectory, string srcDirectory, ClassPath classPath, string projectBaseName)
