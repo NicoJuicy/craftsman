@@ -41,13 +41,8 @@ public class Feature
         get => _responseType;
         set => _responseType = CraftsmanUtilities.PropTypeCleanupDotNet(value);
     }
-
-    private string _permission;
-    public string PermissionName
-    {
-        get => _permission ?? FeatureType.DefaultPermission(EntityPlural, _featureName);
-        set => _permission = value;
-    }
+    
+    public string PermissionName { get; set; } 
 
     private string _batchPropName;
     /// <summary>

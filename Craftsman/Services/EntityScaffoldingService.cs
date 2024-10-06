@@ -232,9 +232,9 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
                 {
                     new() { Type = FeatureType.GetList.Name, IsProtected = true, PermissionName = "CanReadRolePermissions" },
                     new() { Type = FeatureType.GetRecord.Name, IsProtected = true, PermissionName = "CanReadRolePermissions" },
-                    new() { Type = FeatureType.AddRecord.Name, IsProtected = true },
-                    new() { Type = FeatureType.UpdateRecord.Name, IsProtected = true },
-                    new() { Type = FeatureType.DeleteRecord.Name, IsProtected = true },
+                    new() { Type = FeatureType.AddRecord.Name, IsProtected = true, PermissionName = "CanAddPermissions" },
+                    new() { Type = FeatureType.UpdateRecord.Name, IsProtected = true, PermissionName = "CanUpdatePermissions" },
+                    new() { Type = FeatureType.DeleteRecord.Name, IsProtected = true, PermissionName = "CanDeletePermissions" }
                 },
             Properties = new List<EntityProperty>()
                 {
@@ -287,11 +287,11 @@ public class EntityScaffoldingService(ICraftsmanUtilities utilities, IFileSystem
             Name = "User",
             Features =
             [
-                new() { Type = FeatureType.GetList.Name, IsProtected = true },
-                new() { Type = FeatureType.GetRecord.Name, IsProtected = true },
-                new() { Type = FeatureType.AddRecord.Name, IsProtected = true },
-                new() { Type = FeatureType.UpdateRecord.Name, IsProtected = true },
-                new() { Type = FeatureType.DeleteRecord.Name, IsProtected = true }
+                new() { Type = FeatureType.GetList.Name, IsProtected = true, PermissionName = "CanGetUsers" },
+                new() { Type = FeatureType.GetRecord.Name, IsProtected = true, PermissionName = "CanGetUsers" },
+                new() { Type = FeatureType.AddRecord.Name, IsProtected = true, PermissionName = "CanAddUsers" },
+                new() { Type = FeatureType.UpdateRecord.Name, IsProtected = true, PermissionName = "CanUpdateUsers" },
+                new() { Type = FeatureType.DeleteRecord.Name, IsProtected = true, PermissionName = "CanDeleteUsers" }
             ],
             Properties =
             [

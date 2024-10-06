@@ -8,6 +8,14 @@ public class FeatureBuilderHelpers
         string permissionName, out string heimGuardCtor, out string permissionCheck,
         out string permissionsUsing)
     {
+        if(permissionName == null)
+        {
+            heimGuardCtor = null;
+            permissionCheck = null;
+            permissionsUsing = null;
+            return;
+        }
+        
         var permissionsClassPath = ClassPathHelper.PolicyDomainClassPath(srcDirectory, "", projectBaseName);
         heimGuardCtor = isProtected ? $", IHeimGuardClient heimGuard" : null;
         permissionCheck = isProtected

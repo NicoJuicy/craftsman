@@ -124,7 +124,7 @@ public class {classPath.ClassNameWithoutExt} : TestBase
     
     private static string GetPermissionTest(string commandName, string featureName, string permission)
     {
-        return $@"
+        return string.IsNullOrWhiteSpace(permission) ? null : $@"
 
     [Fact]
     public async Task must_be_permitted()

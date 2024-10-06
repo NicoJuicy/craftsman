@@ -69,6 +69,9 @@ public class {classPath.ClassNameWithoutExt} : TestBase
 
     private static string GetPermissionTest(string commandName, Entity entity, string featureName, string permission)
     {
+        if(string.IsNullOrWhiteSpace(permission))
+            return null;
+        
         var fakeUpdateDto = FileNames.FakerName(FileNames.GetDtoName(entity.Name, Dto.Update));
         var fakeEntityVariableName = $"{entity.Name.LowercaseFirstLetter()}One";
 
