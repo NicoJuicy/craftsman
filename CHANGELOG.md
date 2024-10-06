@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * None yet!
 
+## [0.27.2] - 10/06/2024
+
+### Fixed
+
+* Jaeger options pointer
+
 ## [0.27.1] - 10/06/2024
 
 ### Fixed
