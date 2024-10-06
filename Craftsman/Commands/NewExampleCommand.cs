@@ -292,7 +292,7 @@ BoundedContexts:
     ConsumerName: AddToBook
     ExchangeName: book-additions
     QueueName: add-recipe-to-book
-    MessageName: RecipeAdded
+    MessageName: ImportRecipe
     DomainDirectory: Recipes
     ExchangeType: fanout
 Messages:
