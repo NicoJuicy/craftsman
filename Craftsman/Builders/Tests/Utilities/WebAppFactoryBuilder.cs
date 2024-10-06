@@ -5,20 +5,13 @@ using Domain;
 using Helpers;
 using Services;
 
-public class WebAppFactoryBuilder
+public class WebAppFactoryBuilder(ICraftsmanUtilities utilities)
 {
-    private readonly ICraftsmanUtilities _utilities;
-
-    public WebAppFactoryBuilder(ICraftsmanUtilities utilities)
-    {
-        _utilities = utilities;
-    }
-
     public void CreateWebAppFactory(string testDirectory, string projectName, DbProvider provider, bool addJwtAuthentication)
     {
         var classPath = ClassPathHelper.FunctionalTestProjectRootClassPath(testDirectory, $"{FileNames.GetWebHostFactoryName()}.cs", projectName);
         var fileText = GetWebAppFactoryFileText(classPath, testDirectory, projectName, provider, addJwtAuthentication);
-        _utilities.CreateFile(classPath, fileText);
+        utilities.CreateFile(classPath, fileText);
     }
 
     private static string GetWebAppFactoryFileText(ClassPath classPath, string testDirectory, string projectBaseName, DbProvider provider, bool addJwtAuthentication)
