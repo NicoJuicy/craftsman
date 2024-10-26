@@ -82,7 +82,7 @@ public sealed class UserPolicyHandler(ICurrentUserService currentUserService,
                 .Where(x => x.User.Identifier == nameIdentifier)
                 .Select(x => x.Role.Value)
                 .ToArray()
-            : Array.Empty<string>();
+            : [];
 
         if (roles.Length == 0)
             throw new NoRolesAssignedException();

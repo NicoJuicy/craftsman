@@ -23,7 +23,7 @@ public class RealmBuildBuilder
 
     private static string GetFileText(string classNamespace, string realmName, List<AuthServerTemplate.AuthClient> clients, string solutionDirectory, string projectBaseName)
     {
-        var realm = @$"var realm = new Realm(""{realmName}-realm"", new RealmArgs
+        var realm = @$"var realm = new Keycloak.Realm(""{realmName}-realm"", new Keycloak.RealmArgs
         {{
             RealmName = ""{realmName}"",
             RegistrationAllowed = true,
@@ -62,8 +62,8 @@ public class RealmBuildBuilder
 using {extensionsClassPath.ClassNamespace};
 using {factoryClassPath.ClassNamespace};
 using Pulumi;
-using Pulumi.Keycloak;
 using Pulumi.Keycloak.Inputs;
+using Keycloak = Pulumi.Keycloak;
 
 class RealmBuild : Stack
 {{
@@ -71,7 +71,7 @@ class RealmBuild : Stack
     {{
         {realm}{scopesString}{clientsString}
         
-        var bob = new User(""bob"", new UserArgs
+        var bob = new Keycloak.User(""bob"", new Keycloak.UserArgs
         {{
             RealmId = realm.Id,
             Username = ""bob"",
@@ -86,7 +86,7 @@ class RealmBuild : Stack
             }},
         }});
 
-        var alice = new User(""alice"", new UserArgs
+        var alice = new Keycloak.User(""alice"", new Keycloak.UserArgs
         {{
             RealmId = realm.Id,
             Username = ""alice"",
@@ -120,7 +120,10 @@ class RealmBuild : Stack
         string redirectUris = GetRedirectUris(client);
         string webOrigins = GetCors(client.AllowedCorsOrigins);
 
-        var scopeStringList = client.Scopes.Select(scope => $@"{GetScopeVarName(scope)}.Name");
+        var scopeStringList = client.Scopes.Select(scope => 
+$"""
+"{scope}"
+""");
         var clientScopesToAdd = string.Join(",", scopeStringList);
         
         var mapperString = string.Join("", client.Scopes.Select(scope => $@"

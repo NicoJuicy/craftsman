@@ -23,8 +23,7 @@ public class AuthServerProjBuilder(ICraftsmanUtilities utilities)
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Pulumi"" Version=""3.*"" />
-    <PackageReference Include=""Pulumi.Keycloak"" Version=""4.11.0"" />
+    <PackageReference Include=""Pulumi.Keycloak"" Version=""5.3.5"" />
   </ItemGroup>
 
 </Project>";

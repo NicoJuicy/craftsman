@@ -266,10 +266,10 @@ BoundedContexts:
       AsValueObject: MonetaryAmount
   Environment:
       AuthSettings:
-        Authority: http://localhost:3255/auth/realms/DevRealm
+        Authority: http://localhost:3881/realms/DevRealm
         Audience: the_kitchen_company
-        AuthorizationUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/auth
-        TokenUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/token
+        AuthorizationUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/auth
+        TokenUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/token
         ClientId: recipe_management.swagger
         ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
       BrokerSettings:
@@ -303,7 +303,7 @@ Messages:
 AuthServer:
   Name: KeycloakPulumi
   RealmName: DevRealm
-  Port: 3255
+  Port: 3881
   Clients:
     - Id: recipe_management.postman.machine
       Name: RecipeManagement Postman Machine
@@ -430,10 +430,10 @@ BoundedContexts:
       Type: DateOnly?
   Environment:
     AuthSettings:
-      Authority: http://localhost:3255/auth/realms/DevRealm
+      Authority: http://localhost:3881/realms/DevRealm
       Audience: the_kitchen_company
-      AuthorizationUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/auth
-      TokenUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/token
+      AuthorizationUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/auth
+      TokenUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/token
       ClientId: recipe_management.swagger
       ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687";
     }
@@ -558,16 +558,16 @@ BoundedContexts:
       Type: DateOnly?
   Environment:
     AuthSettings:
-      Authority: http://localhost:3255/auth/realms/DevRealm
+      Authority: http://localhost:3881/realms/DevRealm
       Audience: the_kitchen_company
-      AuthorizationUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/auth
-      TokenUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/token
+      AuthorizationUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/auth
+      TokenUrl: http://localhost:3881/realms/DevRealm/protocol/openid-connect/token
       ClientId: recipe_management.swagger
       ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
 AuthServer:
   Name: KeycloakPulumi
   RealmName: DevRealm
-  Port: 3255
+  Port: 3881
   Clients:
     - Id: recipe_management.postman.machine
       Name: RecipeManagement Postman Machine
