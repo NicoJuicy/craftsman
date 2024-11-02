@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+* None yet!
+
+## [0.28.0] - 11/01/2024
+
 * Update keycloak image to quay
 * Update auth examples for new keycloak handling
 * Upgrade pulumi and keycloak setup
