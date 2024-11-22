@@ -66,7 +66,7 @@ public static class {className}
     {{
         public async Task Handle({updateCommandName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var {updatedEntityProp} = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken);
+            var {updatedEntityProp} = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
             var {modelToUpdateVariableName} = request.{commandProp}.To{EntityModel.Update.GetClassName(entity.Name)}();
             {updatedEntityProp}.Update({modelToUpdateVariableName});
 

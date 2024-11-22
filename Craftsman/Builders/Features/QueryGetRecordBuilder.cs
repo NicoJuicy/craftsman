@@ -57,7 +57,7 @@ public static class {className}
         {{{permissionCheck}
             var result = await dbContext.{entity.Plural}
                 .AsNoTracking()
-                .GetById(request.{lowercasePrimaryKey}, cancellationToken);
+                .GetById(request.{lowercasePrimaryKey}, false, cancellationToken);
             return result.To{readDto}();
         }}
     }}

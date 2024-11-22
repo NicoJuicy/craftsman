@@ -53,7 +53,8 @@ public static class {className}
     {{
         public async Task Handle({deleteCommandName} request, CancellationToken cancellationToken)
         {{{permissionCheck}
-            var recordToDelete = await dbContext.{entity.Plural}.GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
+            var recordToDelete = await dbContext.{entity.Plural}
+                .GetById(request.{lowercasePrimaryKey}, cancellationToken: cancellationToken);
             dbContext.Remove(recordToDelete);
             await dbContext.SaveChangesAsync(cancellationToken);
         }}
