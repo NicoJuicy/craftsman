@@ -11,7 +11,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * None yet!
 
+## [0.28.1] - 12/03/2024
+
+### Fixed
+
+- getbyid usage
+
 ## [0.28.0] - 11/01/2024
+
+### Updated
 
 * Update keycloak image to quay
 * Update auth examples for new keycloak handling
