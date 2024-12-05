@@ -101,7 +101,7 @@ public class OptionsConfigurationsBuilder(ICraftsmanUtilities utilities)
               public static string GetJaegerHostValue(this IConfiguration configuration)
               {
                   return configuration
-                      .GetSection(RecipeManagementOptions.SectionName)
+                      .GetSection({{className}}.SectionName)
                       .GetSection(nameof({{className}}.JaegerHost)).Value;
               }
           }

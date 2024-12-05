@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * None yet!
 
+## [0.28.2] - 12/05/2024
+
+### Fixed
+
+- hard coded config
+
 ## [0.28.1] - 12/03/2024
 
 ### Fixed
