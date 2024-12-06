@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * None yet!
 
+## [0.28.3] - 12/06/2024
+
+### Fixed
+
+- Extra param for GetById on query record
+
 ## [0.28.2] - 12/05/2024
 
 ### Fixed
